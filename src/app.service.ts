@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import {insertDefinition} from 'src/app.test.prisma'
+import {insertDefinition, getWordData} from 'src/app.test.prisma'
 @Injectable()
 export class AppService {
   
@@ -12,6 +12,10 @@ export class AppService {
     
     insertDefinition();
   }
+
+  // getWord() : void {
+  //   getWordData()
+  // }
 
   
 
