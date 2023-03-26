@@ -60,23 +60,25 @@ export async function insertDefinition(wordRequest: WordResult): Promise<boolean
   }
 
  export  async function getWordData(word:string) {
-    const definitionData = await prisma.definition.findUnique({
+    const definitionData = await prisma.definition.findMany({
       where: {
-        word: word,
+        pending: false
       },
       include: {
         examples: true,
         likes: true,
-        user: true,
+        user: true
       },
     })
     // console.log("definitionData:",definitionData)
-    if (!definitionData) {
+    if (definitionData.length == 0) {
       console.log(`Word ${word} not found.`)
       return null
     }
-  
-    const likes = definitionData.likes.reduce((total, like) => {
+
+    let likes = definitionData.likes
+    if (likes != undefined){
+    likes = definitionData.likes.reduce((total, like) => {
       if (like.like) {
         total += 1
       } else {
@@ -84,13 +86,16 @@ export async function insertDefinition(wordRequest: WordResult): Promise<boolean
       }
       return total
     }, 0)
-    
+  }else {
+    likes = 0
+  }
+    console.log("definitionData:", definitionData)
     const wordResult = {
       word: definitionData.word,
       def: definitionData.def,
       createdtime: definitionData.registered,
       updatedtime: definitionData.updatedAt,
-      examples: definitionData.examples.map(example => example.text),
+      examples: definitionData.examples,
       likes: likes,
       pending: definitionData.pending,
       user: {

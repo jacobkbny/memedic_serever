@@ -15,7 +15,7 @@ export class AppController {
 
   @Post("/registerword")
   registerWord(@Body() wordRequest : WordResult){
-    return this.appService.registerWord(wordRequest)
+    return this.appService.registerWord(wordRequest) 
     
   }
 

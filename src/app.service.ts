@@ -18,7 +18,7 @@ export class AppService {
   }
 
   async registerWord(wordRequest : WordResult) {
-      const response : boolean = await insertDefinition(wordRequest);
+      const response : any = await insertDefinition(wordRequest);
         return response
   }   
 
@@ -28,7 +28,10 @@ export class AppService {
   }
   async getWord(word: string)  {
     const response : WordResult = await getWordData(word)
-      return response
+    if (response === null) {
+      return false
+    } 
+      return true
   }
   async getPendingWords(){
       const response = await getPendingData()
