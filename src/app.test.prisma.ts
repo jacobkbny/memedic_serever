@@ -1,14 +1,16 @@
+import { CreateUserRequest } from "./dtos/create_user_dto";
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-export async function insertUser(username:String) {
+export async function insertUser(createUserRequest: CreateUserRequest) {
     const newUser = await prisma.user.create({
       data: {
-        username: username,
-        email: "pkb@example.com"
+        username: createUserRequest.username,
+        email: createUserRequest.email
       },
     });
   
-    console.log(newUser);
+  return newUser;
   }
   // insertUser('pkb');
 
@@ -39,7 +41,7 @@ export async function insertDefinition() {
         user: true,
       },
     })
-    console.log("definitionData:",definitionData)
+    // console.log("definitionData:",definitionData)
     if (!definitionData) {
       console.log(`Word ${word} not found.`)
       return null
@@ -72,15 +74,56 @@ export async function insertDefinition() {
     return wordResult
   }
 
-  getWordData('good')
-  .then(wordData => {
-    console.log(wordData)
-  })
-  .catch(e => {
-    console.error(e)
-    process.exit(1)
-  })
+  // getWordData('good')
+  // .then(wordData => {
+  //   console.log(wordData)
+  // })
+  // .catch(e => {
+  //   console.error(e)
+  //   process.exit(1)
+  // })
   
+  async function getPendingData() {
+    const pendingData = await prisma.definition.findMany({
+      where: {
+        pending: true,
+      },
+      include: {
+        examples: true,
+        user: true,
+      },
+    })
+    // console.log("pendingData:",pendingData)
+    const result = pendingData.map(data => {
+      const definitionResult = {
+        word: data.word,
+        definition: data.def,
+        createdtime: data.registered,
+        updatedtime: data.updatedAt,
+        examples: data.examples.map(example => example.text),
+        pending: data.pending,
+        user: {
+          username: data.user.username,
+          email: data.user.email,
+          registertime: data.user.createdAt,
+          updatedtime: data.user.updatedAt,
+        },
+      }
+  
+      return definitionResult
+    })
+  
+    return result
+  }
+  
+  getPendingData()
+    .then(pendingData => {
+      console.log(pendingData)
+    })
+    .catch(e => {
+      console.error(e)
+      process.exit(1)
+    })
 
 // async function getWordData(word) {
 //   const definitions = await prisma.definition.findMany({

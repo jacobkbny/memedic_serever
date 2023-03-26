@@ -1,9 +1,15 @@
-import { Controller, Get, Post, Put,Delete } from '@nestjs/common';
+import { Controller, Get, Post, Put,Delete, Body } from '@nestjs/common';
 import { AppService } from './app.service';
+import { CreateUserRequest } from './dtos/create_user_dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
+
+  @Post("/createUser")
+  createUser(@Body() createUserRequest : CreateUserRequest){
+    this.appService.createUser(createUserRequest)
+  }
 
   @Post("/registerword")
   registerWord(): string{
