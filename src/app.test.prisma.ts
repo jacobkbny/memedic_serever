@@ -1,4 +1,5 @@
 import { CreateUserRequest } from "./dtos/create_user_dto";
+import { DeleteWordDTO } from "./dtos/delete_user_dto";
 import { InsertUserResponse } from "./dtos/Insert_user_dto";
 
 const { PrismaClient } = require('@prisma/client');
@@ -98,6 +99,44 @@ export async function insertDefinition() {
   //   console.error(e)
   //   process.exit(1)
   // })
+  export async function deleteWordData(deleteWordDTO: DeleteWordDTO): Promise<boolean> {
+    // Find the word in the database
+    const existingWord = await prisma.definition.findUnique({
+      where: { word: deleteWordDTO.word },
+      include: {
+        user: true,
+        examples: true,
+        likes: true,
+      },
+    })
+  
+    // If the word doesn't exist, return false
+    if (!existingWord) {
+      return false
+    }
+    if (existingWord.user.username !== deleteWordDTO.username) {
+      return false
+    }
+    // Delete all related definitions, examples, and likes
+    
+    await prisma.example.deleteMany({
+      where: { def_id: existingWord.id },
+    })
+    
+    await prisma.like.deleteMany({
+      where: { def_id: existingWord.id },
+    })
+    
+    await prisma.definition.deleteMany({
+      where: { id: existingWord.id },
+    })
+  
+    // Return true to indicate success
+    return true
+  }
+
+
+
   
   async function getPendingData() {
     const pendingData = await prisma.definition.findMany({

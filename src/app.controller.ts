@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put,Delete, Body } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateUserRequest } from './dtos/create_user_dto';
+import { DeleteWordDTO } from './dtos/delete_user_dto';
 
 @Controller()
 export class AppController {
@@ -38,8 +39,8 @@ export class AppController {
   }
 
   @Delete("/deleteword")
-  deleteWord(): string{
-    return ""
+  deleteWord(@Body() deleteWordDTO:DeleteWordDTO){
+    return this.appService.deleteWordData(deleteWordDTO)
   }
 
 }
