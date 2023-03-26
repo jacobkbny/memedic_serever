@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put,Delete, Body } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateUserRequest } from './dtos/create_user_dto';
 import { DeleteWordDTO } from './dtos/delete_user_dto';
+import { WordResult } from './dtos/read_word_dto';
 
 @Controller()
 export class AppController {
@@ -13,19 +14,19 @@ export class AppController {
   }
 
   @Post("/registerword")
-  registerWord(): string{
-    this.appService.registerWord()
-    return "done!"
+  registerWord(@Body() wordRequest : WordResult){
+    return this.appService.registerWord(wordRequest)
+    
   }
 
   @Get("/pendingword")
-  getPendingWord(): string{
-    return ""
+  getPendingWord(){
+    return this.appService.getPendingWords()
   }
 
   @Get("/getword")
-  getWord(): string{
-    return ""
+  getWord(@Body() wordResult : WordResult){
+    return this.appService.getWord(wordResult.word)
   }
 
   @Get("/getuserword")

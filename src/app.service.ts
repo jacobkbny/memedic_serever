@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
-import {insertDefinition, getWordData, insertUserData,deleteWordData} from 'src/app.test.prisma'
+import {insertDefinition, getWordData, insertUserData,deleteWordData, getPendingData} from 'src/app.test.prisma'
 import { CreateUserRequest } from './dtos/create_user_dto';
 import { DeleteWordDTO } from './dtos/delete_user_dto';
 import { InsertUserResponse } from './dtos/Insert_user_dto';
+import { WordResult } from './dtos/read_word_dto';
 @Injectable()
 export class AppService {
   
@@ -15,18 +16,24 @@ export class AppService {
     console.log("response: " + JSON.stringify(response))
       return JSON.stringify(response)
   }
-  registerWord() : void{
-      insertDefinition();
-  }
+
+  async registerWord(wordRequest : WordResult) {
+      const response : boolean = await insertDefinition(wordRequest);
+        return response
+  }   
 
   async deleteWordData(deleteWordDTO : DeleteWordDTO) {
     const response : boolean = await deleteWordData(deleteWordDTO);
       return response
   }
-  // getWord() : void {
-  //   getWordData()
-  // }
-
+  async getWord(word: string)  {
+    const response : WordResult = await getWordData(word)
+      return response
+  }
+  async getPendingWords(){
+      const response = await getPendingData()
+        return response
+  }
   
 
 }

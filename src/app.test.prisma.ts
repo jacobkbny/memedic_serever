@@ -1,9 +1,11 @@
 import { CreateUserRequest } from "./dtos/create_user_dto";
 import { DeleteWordDTO } from "./dtos/delete_user_dto";
 import { InsertUserResponse } from "./dtos/Insert_user_dto";
+import { WordResult } from "./dtos/read_word_dto";
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+
 export async function insertUserData(createUserRequest: CreateUserRequest): Promise<InsertUserResponse> {
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -12,12 +14,12 @@ export async function insertUserData(createUserRequest: CreateUserRequest): Prom
   })
 
   if (existingUser) {
-    console.log("existing user has called")
     return {
       success: false,
       message: 'Username is already taken',
     }
   }
+
    await prisma.user.create({
     data: {
       username: createUserRequest.username,
@@ -31,23 +33,33 @@ export async function insertUserData(createUserRequest: CreateUserRequest): Prom
   }
   // insertUser('pkb');
 
-export async function insertDefinition() {
+export async function insertDefinition(wordRequest: WordResult): Promise<boolean> {
+  const existingWord = await prisma.definition.findUnique({
+    where: {
+      word: wordRequest.word,
+    },
+  })
+
+  if (existingWord) {
+      return false
+  }
     const newDefinition = await prisma.definition.create({
       data: {
-        word: 'good',
-        def: 'good means good',
+        word: wordRequest.word,
+        def: wordRequest.def,
         pending: true,
-        username: 'pkb',
-        examples: {
-          create: [{ text: 'you look so good' }]
-        },
+        username: wordRequest.user.username
       }
     });
+    await prisma.example.create({
+      data: { text: wordRequest.examples, def_id: newDefinition.id},
+    })
 
     console.log("Finish newDefinition:",newDefinition);
+    return true;
   }
 
- export  async function getWordData(word) {
+ export  async function getWordData(word:string) {
     const definitionData = await prisma.definition.findUnique({
       where: {
         word: word,
@@ -75,7 +87,7 @@ export async function insertDefinition() {
     
     const wordResult = {
       word: definitionData.word,
-      definition: definitionData.def,
+      def: definitionData.def,
       createdtime: definitionData.registered,
       updatedtime: definitionData.updatedAt,
       examples: definitionData.examples.map(example => example.text),
@@ -138,7 +150,7 @@ export async function insertDefinition() {
 
 
   
-  async function getPendingData() {
+ export  async function getPendingData() {
     const pendingData = await prisma.definition.findMany({
       where: {
         pending: true,
@@ -206,3 +218,32 @@ export async function insertDefinition() {
 // }
 
 // getWordData('good');
+
+async function addExampleToWord(
+  word: string,
+  example: string,
+  username: string
+): Promise<boolean> {
+  // Get the definition for the word and include the user who created it
+  const definition = await prisma.definition.findUnique({
+    where: { wordId_word: { wordId: word, word: word } },
+    include: { user: true },
+  })
+
+  // If the word doesn't exist, return false
+  if (!definition) {
+    return false
+  }
+
+  // Check if the requesting user is the same as the user who created the word
+  if (definition.user.username !== username) {
+    return false
+  }
+
+  // Add the example to the definition's examples array
+  await prisma.example.create({
+    data: { example: example, definitionId: definition.id },
+  })
+
+  return true
+}
