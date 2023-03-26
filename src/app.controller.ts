@@ -8,7 +8,7 @@ export class AppController {
 
   @Post("/createUser")
   createUser(@Body() createUserRequest : CreateUserRequest){
-    this.appService.createUser(createUserRequest)
+    return this.appService.insertUser(createUserRequest)
   }
 
   @Post("/registerword")

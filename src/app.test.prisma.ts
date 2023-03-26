@@ -1,16 +1,32 @@
 import { CreateUserRequest } from "./dtos/create_user_dto";
+import { InsertUserResponse } from "./dtos/Insert_user_dto";
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-export async function insertUser(createUserRequest: CreateUserRequest) {
-    const newUser = await prisma.user.create({
-      data: {
-        username: createUserRequest.username,
-        email: createUserRequest.email
-      },
-    });
-  
-  return newUser;
+export async function insertUserData(createUserRequest: CreateUserRequest): Promise<InsertUserResponse> {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      username: createUserRequest.username,
+    },
+  })
+
+  if (existingUser) {
+    console.log("existing user has called")
+    return {
+      success: false,
+      message: 'Username is already taken',
+    }
+  }
+   await prisma.user.create({
+    data: {
+      username: createUserRequest.username,
+      email: createUserRequest.email,
+    },
+  })
+
+  return {
+    success: true,
+  }
   }
   // insertUser('pkb');
 
