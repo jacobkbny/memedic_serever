@@ -1,4 +1,4 @@
 export class DeleteWordDTO {
-    username : string;
-    word: string;
+  username: string;
+  word: string;
 }
