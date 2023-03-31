@@ -34,12 +34,11 @@ export async function insertUserData(
     success: true,
   };
 }
-// insertUser('pkb');
 
 export async function insertDefinition(
   wordRequest: WordResult,
 ): Promise<boolean> {
-  const existingWord = await prisma.definition.findUnique({
+  const existingWord = await prisma.word.findUnique({
     where: {
       word: wordRequest.word,
     },
@@ -48,7 +47,8 @@ export async function insertDefinition(
   if (existingWord) {
     return false;
   }
-  const newDefinition = await prisma.definition.create({
+  
+  const newDefinition = await prisma.word.create({
     data: {
       word: wordRequest.word,
       def: wordRequest.def,
@@ -65,7 +65,7 @@ export async function insertDefinition(
 }
 
 export async function getWordData(word: string) {
-  const definitionData = await prisma.definition.findMany({
+  const definitionData = await prisma.word.findMany({
     where: {
       pending: false,
     },
@@ -121,8 +121,8 @@ export async function getWordData(word: string) {
 //   console.error(e)
 //   process.exit(1)
 // })
-export async function updateWordData (updateData: WordResult) {
-  const definition = await prisma.definition.findUnique({
+export async function updateWordData(updateData: WordResult) {
+  const definition = await prisma.word.findUnique({
     where: {
       word: updateData.word,
     },
@@ -130,34 +130,34 @@ export async function updateWordData (updateData: WordResult) {
       user: true,
     },
   });
-  
+
   if (!definition) {
     throw new Error(`Word ${updateData.word} not found`);
   }
-  
+
   if (definition.user.username !== updateData.user.username) {
-    throw new Error(`User ${updateData.user.username} is not authorized to update the word ${updateData.word}`);
+    throw new Error(
+      `User ${updateData.user.username} is not authorized to update the word ${updateData.word}`,
+    );
   }
-  
-  const updatedDefinition = await prisma.definition.update({
+
+  const updatedDefinition = await prisma.word.update({
     where: {
       word: updateData.word,
     },
     data: {
-      def: updateData.def
+      def: updateData.def,
     },
   });
-  
+
   return updatedDefinition;
 }
-
-
 
 export async function deleteWordData(
   deleteWordDTO: DeleteWordDTO,
 ): Promise<boolean> {
   // Find the word in the database
-  const existingWord = await prisma.definition.findUnique({
+  const existingWord = await prisma.word.findUnique({
     where: { word: deleteWordDTO.word },
     include: {
       user: true,
@@ -192,13 +192,12 @@ export async function deleteWordData(
 }
 
 export async function getPendingData() {
-  const pendingData = await prisma.definition.findMany({
+  const pendingData = await prisma.word.findMany({
     where: {
       pending: true,
     },
     include: {
-      examples: true,
-      user: true,
+      registrar: true,
     },
   });
   // console.log("pendingData:",pendingData)
@@ -208,13 +207,11 @@ export async function getPendingData() {
       definition: data.def,
       createdtime: data.registered,
       updatedtime: data.updatedAt,
-      examples: data.examples.map((example) => example.text),
+      example: data.example,
       pending: data.pending,
       user: {
-        username: data.user.username,
-        email: data.user.email,
-        registertime: data.user.createdAt,
-        updatedtime: data.user.updatedAt,
+        username: data.registrar.username,
+        email: data.registrar.email,
       },
     };
 

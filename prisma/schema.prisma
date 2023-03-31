@@ -55,6 +55,7 @@ model User {
   id        Int       @id @default(autoincrement())
   username  String    @unique
   email     String    @unique
+  created_at DateTime @default(now()) // Added field to record sign-up timestamp
   words     Word[]    // One-to-many relationship with Word
   likes     Like[]    // One-to-many relationship with Like
   bookmarks Bookmark[] // One-to-many relationship with Bookmark
