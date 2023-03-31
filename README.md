@@ -1,8 +1,6 @@
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-<p align="center">
+</p><p align="right">
   <a href="https://www.prisma.io/" target="blank"><img src="https://spin.atomicobject.com/wp-content/uploads/prisma.jpg.jpg" width="200" alt="Prisma Logo" /></a>
 </p>
 
