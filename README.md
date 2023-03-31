@@ -31,6 +31,7 @@
 ```bash
 $ npm install
 ```
+
 ``` bash
 ## Prisma initialization
 $ npx prisma deploy
