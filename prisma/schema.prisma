@@ -63,7 +63,7 @@ model User {
 
 model Word {
   id              Int       @id @default(autoincrement())
-  word            String    @unique // Added unique constraint for faster lookups
+  word            String    
   definition      String
   example         String
   registrar       User      @relation(fields: [registrarId], references: [id])

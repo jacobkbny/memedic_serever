@@ -34,6 +34,36 @@ export async function insertUserData(
     success: true,
   };
 }
+export async function insertWord(word, definition, example, username) {
+  // Find the user with the given username
+  const registrar = await prisma.user.findUnique({
+    where: {
+      username: username,
+    },
+  });
+
+  // If the user is not found, return an error message
+  if (!registrar) {
+    throw new Error('User not found');
+  }
+
+  // Insert word data into the database with pending status set to true
+  const newWord = await prisma.word.create({
+    data: {
+      word: word,
+      definition: definition,
+      example: example,
+      registrar: {
+        connect: {
+          id: registrar.id,
+        },
+      },
+      pending: true,
+    },
+  });
+
+  return newWord;
+}
 
 export async function insertDefinition(
   wordRequest: WordResult,
@@ -47,11 +77,11 @@ export async function insertDefinition(
   if (existingWord) {
     return false;
   }
-  
+
   const newDefinition = await prisma.word.create({
     data: {
       word: wordRequest.word,
-      def: wordRequest.def,
+      definition: wordRequest.def,
       pending: true,
       username: wordRequest.user.username,
     },
@@ -63,6 +93,39 @@ export async function insertDefinition(
   console.log('Finish newDefinition:', newDefinition);
   return true;
 }
+ // when user wishes to search for specific word
+async function fetchWordDetails(word) {
+  // Fetch the word data from the database with pending set to false
+  const wordData = await prisma.word.findMany({
+    where: {
+      word: word,
+      pending: false,
+    },
+    include: {
+      registrar: true,
+      likes: true,
+    },
+  });
+
+  // If no matching word is found, return an error message
+  if (!wordData) {
+    throw new Error('Word not found or pending approval');
+  }
+
+  // Count the number of likes (excluding dislikes)
+  const numberOfLikes = wordData.likes.filter((like) => like.like).length;
+
+  // Return the word, definition, username, registered_time, and the number of likes
+  return {
+    word: wordData.word,
+    definition: wordData.definition,
+    username: wordData.registrar.username,
+    registered_time: wordData.registered_time,
+    numberOfLikes: numberOfLikes,
+  };
+}
+
+
 
 export async function getWordData(word: string) {
   const definitionData = await prisma.word.findMany({
@@ -70,7 +133,7 @@ export async function getWordData(word: string) {
       pending: false,
     },
     include: {
-      examples: true,
+      example: true,
       likes: true,
       user: true,
     },
@@ -146,7 +209,7 @@ export async function updateWordData(updateData: WordResult) {
       word: updateData.word,
     },
     data: {
-      def: updateData.def,
+      definition: updateData.def,
     },
   });
 
