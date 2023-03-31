@@ -1,6 +1,11 @@
+<div>
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
+<p align="center">
+  <a href="https://www.prisma.io/" target="blank"><img src="https://spin.atomicobject.com/wp-content/uploads/prisma.jpg.jpg" width="200" alt="Prisma Logo" /></a>
+</p>
+</div>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
@@ -32,6 +37,10 @@
 $ npm install
 ```
 
+## Prisma initialization
+``` bash
+$ npx prisma deploy
+```
 ## Running the app
 
 ```bash
