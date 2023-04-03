@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 // 유저의 의사표현
-async function toggleLikeExpression(wordId:integer, userId:integer, expression:boolean) {
+export async function toggleLikeExpression(wordId:integer, userId:integer, expression:boolean) {
   // Find the existing like record for the given wordId and userId
   const existingLike = await prisma.like.findUnique({
     where: {
@@ -47,7 +47,7 @@ async function toggleLikeExpression(wordId:integer, userId:integer, expression:b
   });
 
   return { message: 'Like expression updated', like: updatedLike };
-}
+  }
 
 // 내가(유저가) 좋아요 표시한 단어들 불러오기
 export async function fetchLikedWordsByUser(userId:integer) {
