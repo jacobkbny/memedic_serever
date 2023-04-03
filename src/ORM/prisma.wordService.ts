@@ -105,7 +105,7 @@ export async function fetchWordDetailsById(wordId:integer) {
   }
 
 // 단어 삭제
-export async function deleteWord(userId, wordId) {
+export async function deleteWord(userId:integer, wordId:integer) {
     // Fetch the word details to check if the user is the one who registered the word
     const wordData = await prisma.word.findUnique({
       where: {
@@ -159,7 +159,7 @@ export async function fetchAllPendingWords() {
   }
 
 // 단어 승인
-export async function approveWord(wordId) {
+export async function approveWord(wordId:integer) {
   // Update the word's pending value to false
   const updatedWord = await prisma.word.update({
     where: {
@@ -173,6 +173,30 @@ export async function approveWord(wordId) {
   return { message: 'Word successfully approved', word: updatedWord };
   }
 
+// 단어 승인 거절로 인한 삭제
+export async function deleteUnapprovedWord(wordId:integer) {
+  // First, find the word with the given wordId
+  const word = await prisma.word.findUnique({
+    where: {
+      id: wordId,
+    },
+  });
+
+  // Check if the word is pending approval
+  if (word && word.pending) {
+    // Delete the word if it is not approved
+    await prisma.word.delete({
+      where: {
+        id: wordId,
+      },
+    });
+
+    return { message: 'Unapproved word successfully deleted', wordId: wordId };
+  } else {
+    // If the word is already approved or not found, return an error message
+    return { message: 'Word not found or already approved', wordId: wordId };
+  }
+  }
 // 7일간 단어를 뽑아온 후 좋아요 순으로 내림차순
 export async function fetchPopularWordsFromLastWeek() {
   // Calculate the date 7 days ago
@@ -201,7 +225,7 @@ export async function fetchPopularWordsFromLastWeek() {
   }
 
 // 내가(유저) 등록한 단어 불러오기
-export async function fetchWordsByUser(userId) {
+export async function fetchWordsByUser(userId:integer) {
   // Fetch all words registered by the user with the given userId
   const userWords = await prisma.word.findMany({
     where: {

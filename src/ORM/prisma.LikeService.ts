@@ -83,4 +83,4 @@ export async function fetchLikedWordsByUser(userId:integer) {
   const likedWords = userLikes.map((like) => like.word);
 
   return likedWords;
-}
+  }
