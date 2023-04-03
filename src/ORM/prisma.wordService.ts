@@ -31,6 +31,7 @@ export async function insertWord(word, definition, example, username) {
   
     return newWord;
   }
+  
  // 읽기  검색창에 단어를 검색하는 경우 
 export async function fetchWordDetails(word:string) {
     // Fetch the word data from the database with pending set to false
@@ -103,4 +104,45 @@ export async function fetchWordDetailsById(wordId:integer) {
     };
   }
 
+// 단어 삭제
+export async function deleteWord(userId, wordId) {
+    // Fetch the word details to check if the user is the one who registered the word
+    const wordData = await prisma.word.findUnique({
+      where: {
+        id: wordId,
+      },
+    });
+  
+    if (!wordData) {
+      // If the word does not exist, return an error message
+      throw new Error('Word not found');
+    } else if (wordData.registrarId !== userId) {
+      // If the user is not the one who registered the word, return an error message
+      throw new Error('You do not have permission to delete this word');
+    } else {
+      // Begin a transaction
+      const deleteWordTransaction = await prisma.$transaction([
+        // Delete all likes/dislikes related to the word
+        prisma.like.deleteMany({
+          where: {
+            wordId: wordId,
+          },
+        }),
+        // Delete all bookmarks related to the word
+        prisma.bookmark.deleteMany({
+          where: {
+            wordId: wordId,
+          },
+        }),
+        // Delete the word with the given wordId
+        prisma.word.delete({
+          where: {
+            id: wordId,
+          },
+        }),
+      ]);
+    }
+  
+    return { message: 'Word and all related data successfully deleted' };
+  }
 
