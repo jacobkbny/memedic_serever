@@ -71,7 +71,7 @@ export async function fetchWordDetails(word:string) {
   }
 
 // 검색된 단어중 하나를 클릭하여 상세 보기를 원하는 경우
-export async function fetchWordDetailsById(wordId:integer) {
+export async function fetchWordDetailsById(wordId:number) {
     // Fetch the word data from the database based on the wordId
     const wordData = await prisma.word.findUnique({
       where: {
@@ -105,7 +105,7 @@ export async function fetchWordDetailsById(wordId:integer) {
   }
 
 // 단어 삭제
-export async function deleteWord(userId:integer, wordId:integer) {
+export async function deleteWord(userId:number, wordId:number) {
     // Fetch the word details to check if the user is the one who registered the word
     const wordData = await prisma.word.findUnique({
       where: {
@@ -159,7 +159,7 @@ export async function fetchAllPendingWords() {
   }
 
 // 단어 승인
-export async function approveWord(wordId:integer) {
+export async function approveWord(wordId:number) {
   // Update the word's pending value to false
   const updatedWord = await prisma.word.update({
     where: {
@@ -174,7 +174,7 @@ export async function approveWord(wordId:integer) {
   }
 
 // 단어 승인 거절로 인한 삭제
-export async function deleteUnapprovedWord(wordId:integer) {
+export async function deleteUnapprovedWord(wordId:number) {
   // First, find the word with the given wordId
   const word = await prisma.word.findUnique({
     where: {
@@ -225,7 +225,7 @@ export async function fetchPopularWordsFromLastWeek() {
   }
 
 // 내가(유저) 등록한 단어 불러오기
-export async function fetchWordsByUser(userId:integer) {
+export async function fetchWordsByUser(userId:number) {
   // Fetch all words registered by the user with the given userId
   const userWords = await prisma.word.findMany({
     where: {

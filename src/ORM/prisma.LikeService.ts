@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 // 유저의 의사표현
-export async function toggleLikeExpression(wordId:integer, userId:integer, expression:boolean) {
+export async function toggleLikeExpression(wordId:number, userId:number, expression:boolean) {
   // Find the existing like record for the given wordId and userId
   const existingLike = await prisma.like.findUnique({
     where: {
@@ -50,7 +50,7 @@ export async function toggleLikeExpression(wordId:integer, userId:integer, expre
   }
 
 // 내가(유저가) 좋아요 표시한 단어들 불러오기
-export async function fetchLikedWordsByUser(userId:integer) {
+export async function fetchLikedWordsByUser(userId:number) {
   // Fetch all likes created by the user with the given userId and where the like expression is true
   const userLikes = await prisma.like.findMany({
     where: {

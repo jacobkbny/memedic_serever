@@ -1,3 +1,6 @@
+import { CreateUserRequest } from "src/dtos/create_user_dto";
+import { InsertUserResponse } from "src/dtos/Insert_user_dto";
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 // 유저 생성
@@ -30,7 +33,7 @@ export async function insertUserData(
   }
 
 // 닉네임 변경
-export async function changeUsername(userId:integer, newUsername:string) {
+export async function changeUsername(userId:number, newUsername:string) {
     // Check if the new username already exists in the database
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -57,7 +60,7 @@ export async function changeUsername(userId:integer, newUsername:string) {
   }
 
 // 유저 삭제
-export async function deleteUser(userId:Integer) {
+export async function deleteUser(userId:number) {
     // Begin a transaction
     const deleteUserTransaction = await prisma.$transaction([
       // Delete all the user's bookmarks

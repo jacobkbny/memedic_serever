@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
   // 북마크 생성
-export async function bookmarkWord(userId:integer, wordId:integer) {
+export async function bookmarkWord(userId:number, wordId:number) {
     // Check if the bookmark already exists in the database
     const existingBookmark = await prisma.bookmark.findUnique({
       where: {
@@ -29,7 +29,7 @@ export async function bookmarkWord(userId:integer, wordId:integer) {
   }
 
   // 북마크 제거
-export async function removeBookmark(userId:integer, wordId:integer) {
+export async function removeBookmark(userId:number, wordId:number) {
     // Check if the bookmark exists in the database
     const existingBookmark = await prisma.bookmark.findUnique({
       where: {
