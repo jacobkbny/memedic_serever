@@ -65,3 +65,22 @@ export async function revokeLikeDislike(userId:integer, wordId:integer, expressi
   
     return { message: 'Like/dislike action successfully revoked' };
   }
+
+// 좋아요 표시한 단어들 불러오기
+export async function fetchLikedWordsByUser(userId:integer) {
+  // Fetch all likes created by the user with the given userId and where the like expression is true
+  const userLikes = await prisma.like.findMany({
+    where: {
+      userId: userId,
+      like: true,
+    },
+    include: {
+      word: true,
+    },
+  });
+
+  // Extract the liked words from the userLikes array
+  const likedWords = userLikes.map((like) => like.word);
+
+  return likedWords;
+}

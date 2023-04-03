@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
- // 삽입
+ // 단어 등록
 export async function insertWord(word, definition, example, username) {
     // Find the user with the given username
     const registrar = await prisma.user.findUnique({
@@ -31,7 +31,7 @@ export async function insertWord(word, definition, example, username) {
   
     return newWord;
   }
-  
+
  // 읽기  검색창에 단어를 검색하는 경우 
 export async function fetchWordDetails(word:string) {
     // Fetch the word data from the database with pending set to false
@@ -146,3 +146,68 @@ export async function deleteWord(userId, wordId) {
     return { message: 'Word and all related data successfully deleted' };
   }
 
+// 승인전 단어 불러오기
+export async function fetchAllPendingWords() {
+  // Fetch all words with pending set to true
+  const pendingWords = await prisma.word.findMany({
+    where: {
+      pending: true,
+    },
+  });
+
+  return pendingWords;
+  }
+
+// 단어 승인
+export async function approveWord(wordId) {
+  // Update the word's pending value to false
+  const updatedWord = await prisma.word.update({
+    where: {
+      id: wordId,
+    },
+    data: {
+      pending: false,
+    },
+  });
+
+  return { message: 'Word successfully approved', word: updatedWord };
+  }
+
+// 7일간 단어를 뽑아온 후 좋아요 순으로 내림차순
+export async function fetchPopularWordsFromLastWeek() {
+  // Calculate the date 7 days ago
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  // Fetch all words registered within the last 7 days
+  const wordsFromLastWeek = await prisma.word.findMany({
+    where: {
+      registered_time: {
+        gte: sevenDaysAgo,
+      },
+    },
+    include: {
+      likes: true,
+    },
+  });
+
+  // Calculate the total likes count for each word and sort them in descending order
+  const popularWords = wordsFromLastWeek.map((word) => ({
+    ...word,
+    totalLikes: word.likes.filter((like) => like.like).length,
+  })).sort((a, b) => b.totalLikes - a.totalLikes);
+
+  return popularWords;
+  }
+
+// 내가(유저) 등록한 단어 불러오기
+export async function fetchWordsByUser(userId) {
+  // Fetch all words registered by the user with the given userId
+  const userWords = await prisma.word.findMany({
+    where: {
+      registrarId: userId,
+    },
+  });
+
+  return userWords;
+  }
