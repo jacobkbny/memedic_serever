@@ -146,7 +146,7 @@ export async function deleteWord(userId:number, wordId:number) {
     return { message: 'Word and all related data successfully deleted' };
   }
 
-// 승인전 단어 불러오기
+// 승인전 단어들 불러오기
 export async function fetchAllPendingWords() {
   // Fetch all words with pending set to true
   const pendingWords = await prisma.word.findMany({
