@@ -1,4 +1,4 @@
-export class RequestHeader{
-    ApiKey:string;
-    secretKey:string;
+export class RequestHeader {
+  ApiKey: string;
+  secretKey: string;
 }
