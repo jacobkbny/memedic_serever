@@ -16,22 +16,22 @@ export async function insertUserData(
   const response = new InsertUserResponse();
   const existenceByUsername = await prisma.user.findUnique({
     where: {
-      username: createUserRequest.username
+      username: createUserRequest.username,
     },
   });
   if (existenceByUsername) {
     response.success = false;
     return response;
   }
-  
+
   const existenceByEmail = await prisma.user.findUnique({
     where: {
-      email: createUserRequest.email
+      email: createUserRequest.email,
     },
-  })
+  });
   if (existenceByEmail) {
     response.success = false;
-    return response
+    return response;
   }
 
   await prisma.user.create({
