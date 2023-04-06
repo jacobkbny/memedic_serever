@@ -14,15 +14,24 @@ export async function insertUserData(
   createUserRequest: CreateUserRequest,
 ): Promise<InsertUserResponse> {
   const response = new InsertUserResponse();
-  const existingUser = await prisma.user.findUnique({
+  const existenceByUsername = await prisma.user.findUnique({
     where: {
-      username: createUserRequest.username,
+      username: createUserRequest.username
     },
   });
-
-  if (existingUser) {
+  if (existenceByUsername) {
     response.success = false;
     return response;
+  }
+  
+  const existenceByEmail = await prisma.user.findUnique({
+    where: {
+      email: createUserRequest.email
+    },
+  })
+  if (existenceByEmail) {
+    response.success = false;
+    return response
   }
 
   await prisma.user.create({
