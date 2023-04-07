@@ -11,7 +11,7 @@ export class SearchWordResponse {
   definition?: string;
   example?: string;
   username?: string;
-  registerd_time?: number;
+  registerd_time?: Date;
   numberOfLikes?: number;
 }
 

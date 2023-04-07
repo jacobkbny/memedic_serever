@@ -81,7 +81,7 @@ export async function fetchWordDetails(
     response.username = wordData.username;
     response.registerd_time = wordData.registered_time;
     response.numberOfLikes = numberOfLikes;
-
+    response.wordId = wordData.id;
     return response;
   });
 
