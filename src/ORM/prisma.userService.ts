@@ -6,6 +6,7 @@ import {
 } from 'src/dtos/delete_user_dto';
 import { InsertUserResponse } from 'src/dtos/Insert_user_dto';
 import { ChangeUsernameRequest } from 'src/dtos/modify_user_dto';
+import { Auth } from 'src/dtos/user_auth_dto';
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -21,6 +22,7 @@ export async function insertUserData(
   });
   if (existenceByUsername) {
     response.success = false;
+    response.message = "닉네임중복"
     return response;
   }
 
@@ -31,10 +33,11 @@ export async function insertUserData(
   });
   if (existenceByEmail) {
     response.success = false;
+    response.message = "이메일 중복"
     return response;
   }
 
-  await prisma.user.create({
+  const resulst = await prisma.user.create({
     data: {
       username: createUserRequest.username,
       email: createUserRequest.email,
@@ -42,9 +45,25 @@ export async function insertUserData(
   });
 
   response.success = true;
+  response.message = "가입 완료"
+  response.userid = resulst.userid;
+  response.username = resulst.username;
   return response;
 }
 
+// 로그인
+
+export async function Signin_user(auth:Auth){
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      username: auth.username,
+    },
+  });
+  if (existingUser){
+    return existingUser
+  }
+  return "no matched user data"
+}
 // 닉네임 변경
 export async function changeUsername(
   changeUsernameRequest: ChangeUsernameRequest,
