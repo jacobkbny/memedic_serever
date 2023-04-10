@@ -1,4 +1,4 @@
-import { Injectable} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import {
   insertUserData,
@@ -51,36 +51,35 @@ export class AppService {
     };
   }
    */
-    // 로그인
-  async issue_jwt_token(user : Auth){
-    const payload = {username:user.username, userid:user.userid, tokenid:user.tokenid}
+  // jwt 토큰 생성
+  async issue_jwt_token(user: Auth) {
+    const payload = { username: user.username, userid: user.userid };
     return {
-        access_token: this.jwtService.sign(payload)
-    }
+      access_token: this.jwtService.sign(payload),
+    };
   }
   // 유저 등록
   async insertUser(createUserRequest: CreateUserRequest) {
     const response: InsertUserResponse = await insertUserData(
       createUserRequest,
     );
-      if(response.success){
-        const auth = new Auth()
-        auth.userid = response.userid
-        auth.username = response.username
-        const jwt_token =  this.issue_jwt_token(auth)
-        return jwt_token;
-      }
-      return response
-  }
-   // 로그인
-   async Signin(user: Auth){
-    const response = await Signin_user(user)
-    if(response === "no matched user data"){
-        return response
+    if (response.success) {
+      const auth = new Auth();
+      auth.userid = response.userid;
+      auth.username = response.username;
+      const jwt_token = this.issue_jwt_token(auth);
+      return jwt_token;
     }
-    return this.issue_jwt_token(user)
-
-   }
+    return response;
+  }
+  // 로그인
+  async Signin(user: Auth) {
+    const response = await Signin_user(user);
+    if (response === 'no matched user data') {
+      return response;
+    }
+    return this.issue_jwt_token(user);
+  }
   // 닉네임 변경
   async modifyUsername(changeUsernameRequest: ChangeUsernameRequest) {
     const response: ChangeUserNameResponse = await changeUsername(
@@ -170,5 +169,4 @@ export class AppService {
     const response = await fetchBookmarkedWordsByUser(bookmark);
     return response;
   }
-  
 }

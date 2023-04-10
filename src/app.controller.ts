@@ -17,14 +17,20 @@ import { ChangeUsernameRequest } from './dtos/modify_user_dto';
 import { RequestHeader } from './dtos/request_header_dto';
 import { SearchWordRequest } from './dtos/search__word_dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Auth } from './dtos/user_auth_dto';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // 유저 생성 (session || JWT)
+  // 유저 생성 (JWT)
   @Post('/createUser')
   createUser(@Body() createUserRequest: CreateUserRequest) {
     return this.appService.insertUser(createUserRequest);
+  }
+
+  @Post('Signin')
+  Signin(@Body() user: Auth) {
+    return this.appService.Signin(user);
   }
   // 닉네임 변경
   @UseGuards(AuthGuard('jwt'))
