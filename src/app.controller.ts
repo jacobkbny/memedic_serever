@@ -5,7 +5,6 @@ import {
   Put,
   Delete,
   Body,
-  UseGuards,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { BookmarkRequest } from './dtos/bookmark_word_dto';
@@ -16,8 +15,7 @@ import { UserExpressionRequest } from './dtos/like__user_dto';
 import { ChangeUsernameRequest } from './dtos/modify_user_dto';
 import { RequestHeader } from './dtos/request_header_dto';
 import { SearchWordRequest } from './dtos/search__word_dto';
-import { AuthGuard } from '@nestjs/passport';
-import { Auth } from './dtos/user_auth_dto';
+
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -33,10 +31,6 @@ export class AppController {
     return this.appService.insertUser(createUserRequest);
   }
 
-  @Post('Signin')
-  Signin(@Body() user: Auth) {
-    return this.appService.Signin(user);
-  }
   // 닉네임 변경
   
   @Put('/changeUsername')

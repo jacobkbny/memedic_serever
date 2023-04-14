@@ -53,17 +53,6 @@ export async function insertUserData(
 
 // 로그인
 
-export async function Signin_user(auth:Auth){
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      username: auth.username,
-    },
-  });
-  if (existingUser){
-    return existingUser
-  }
-  return "no matched user data"
-}
 // 닉네임 변경
 export async function changeUsername(
   changeUsernameRequest: ChangeUsernameRequest,
