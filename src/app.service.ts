@@ -13,6 +13,7 @@ import { ChangeUsernameRequest } from './dtos/modify_user_dto';
 import { ChangeUserNameResponse } from './dtos/changeUsername_response_dto';
 import { InsertWordRequest, InsertWordResponse } from './dtos/insert_word_dto';
 import {
+  approveAllPendingWords,
   approveWord,
   deleteUnapprovedWord,
   deleteWord,
@@ -96,6 +97,10 @@ export class AppService {
   async registerWord(InsertWordRequest: InsertWordRequest) {
     const response: InsertWordResponse = await insertWord(InsertWordRequest);
     return response;
+  }
+  async ApproveWords(){
+    const response = await approveAllPendingWords()
+    return response
   }
   // 검색창에 단어를 검색하는 경우
   async getWord(

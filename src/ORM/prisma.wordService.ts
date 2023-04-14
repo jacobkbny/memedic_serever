@@ -202,6 +202,21 @@ export async function approveWord(
   return response;
 }
 
+export async function approveAllPendingWords() {
+  
+    const updatedWords = await prisma.word.updateMany({
+      where: {
+        pending: true,
+      },
+      data: {
+        pending: false,
+      },
+    });
+
+   
+    return updatedWords;
+} 
+
 // 단어 승인 거절로 인한 삭제
 export async function deleteUnapprovedWord(
   searchWordRequest: SearchWordRequest,

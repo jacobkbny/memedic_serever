@@ -22,6 +22,11 @@ import { Auth } from './dtos/user_auth_dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Post("/ApproveAllForTest")
+  ApproveAllForTest(){
+    return this.appService.ApproveWords()
+  }
+
   // 유저 생성 (JWT)
   @Post('/createUser')
   createUser(@Body() createUserRequest: CreateUserRequest) {
@@ -33,7 +38,7 @@ export class AppController {
     return this.appService.Signin(user);
   }
   // 닉네임 변경
-  @UseGuards(AuthGuard('jwt'))
+  
   @Put('/changeUsername')
   changeUsername(@Body() changeUsernameRequest: ChangeUsernameRequest) {
     return this.appService.modifyUsername(changeUsernameRequest);
@@ -44,14 +49,14 @@ export class AppController {
     return this.appService.deleteUser(deleteUserRequest);
   }
   // 단어 등록
-  @UseGuards(AuthGuard('jwt'))
+  
   @Post('/registerword')
   registerWord(@Body() insertWordRequest: InsertWordRequest) {
     return this.appService.registerWord(insertWordRequest);
   }
 
   // 승인전 단어들 불러오기
-  @UseGuards(AuthGuard('jwt'))
+  
   @Get('/getallpending')
   getPendingWord() {
     return this.appService.getPendingWords();
@@ -82,44 +87,43 @@ export class AppController {
     return this.appService.deleteByDenial(searchWordRequest);
   }
   // 내가(유저) 등록한 단어 불러오기
-  @UseGuards(AuthGuard('jwt'))
+  
   @Get('/getwordbyuser')
   getwordByUser(@Body() searchWordRequest: SearchWordRequest) {
     return this.appService.getWordByUser(searchWordRequest);
   }
 
   // 단어 삭제
-  @UseGuards(AuthGuard('jwt'))
+  
   @Delete('/deleteword')
   deleteWord(@Body() searchWordRequest: SearchWordRequest) {
     return this.appService.deleteWord(searchWordRequest);
   }
   // 유저의 의사표현
-  @UseGuards(AuthGuard('jwt'))
+  
   @Post('/expression')
   expression(@Body() userExpressionRequest: UserExpressionRequest) {
     return this.appService.userExpression(userExpressionRequest);
   }
   //내가(유저가) 좋아요한 단어 불러오기
-  @UseGuards(AuthGuard('jwt'))
+  
   @Get('/fetchexpression')
   fetchexpression(@Body() userExpressionReqeust: UserExpressionRequest) {
     return this.appService.getWordbyUserExpression(userExpressionReqeust);
   }
   // create bookmark
-  @UseGuards(AuthGuard('jwt'))
+ 
   @Post('/bookmarkword')
   bookmarkWord(@Body() bookmarkReqeust: BookmarkRequest) {
     return this.appService.addBookMark(bookmarkReqeust);
   }
   // delete bookmark
-  @UseGuards(AuthGuard('jwt'))
+  
   @Delete('/removebookmark')
   removeBookmark(@Body() bookmarkReqeust: BookmarkRequest) {
     return this.appService.removeBookMark(bookmarkReqeust);
   }
   @Get('/getbookmarkofuser')
-  @UseGuards(AuthGuard('jwt'))
   getBookmarkOfUser(@Body() bookmarkReqeust: BookmarkRequest) {
     return this.appService.getAllBookmarkedWordsByUser(bookmarkReqeust);
   }
