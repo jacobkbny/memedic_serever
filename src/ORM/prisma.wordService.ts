@@ -204,12 +204,14 @@ export async function approveWord(
 
 export async function approveAllPendingWords() {
   
+  const kstDate = getCurrentKSTDate();
     const updatedWords = await prisma.word.updateMany({
       where: {
         pending: true,
       },
       data: {
         pending: false,
+        registered_time: kstDate
       },
     });
 
@@ -286,4 +288,10 @@ export async function fetchWordsByUser(searchWordRequest: SearchWordRequest) {
   });
 
   return userWords;
+}
+
+function getCurrentKSTDate() {
+  const currentDate = new Date();
+  const offset = 9 * 60 * 60 * 1000; // 9 hours in milliseconds
+  return new Date(currentDate.getTime() + offset);
 }
