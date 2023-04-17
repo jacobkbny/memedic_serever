@@ -90,6 +90,11 @@ export async function getUserInfoByEmail(email : string): Promise<InsertUserResp
       email: email,
     }
   })
+  if (userInfo == null) {
+    response.success = false;
+    response.message = "User not found"
+    return response
+  }
 
   response.success = true;
   response.userid = userInfo.id;
