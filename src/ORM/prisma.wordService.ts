@@ -67,10 +67,9 @@ export async function fetchWordDetails(searchWordRequest: SearchWordRequest) {
   // Iterate through the wordDataArray and process each wordData
   const wordDetailsArray = wordDataArray.map((wordData) => {
     // Count the number of likes (excluding dislikes)
-    const numberOfLikes = wordData.likes.filter((like) => like.like).length;
+    const numberOfLikes = wordData.likes.filter((like) => like.like_status).length;
 
     // Return the word, definition, username, registered_time, and the number of likes
-    console.log('wordData:', wordData);
     return {
       word: wordData.word,
       definition: wordData.definition,
@@ -108,7 +107,7 @@ export async function fetchWordDetailsById(
   }
 
   // Count the number of likes (excluding dislikes)
-  const numberOfLikes = wordData.likes.filter((like) => like.like).length;
+  const numberOfLikes = wordData.likes.filter((like) => like.like_status).length;
 
   // Return the word data, including word, definition, example, username, registered_time, and the number of likes
   response.result = true;

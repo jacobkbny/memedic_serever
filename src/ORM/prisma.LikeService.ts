@@ -79,7 +79,7 @@ export async function fetchLikedWordsByUser(
   });
 
   // Extract the liked words from the userLikes array
-  const likedWords = userLikes.map((like) => like.word);
+  const likedWords = userLikes.map((like) => like.wordId);
 
   return likedWords;
 }
