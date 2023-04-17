@@ -46,10 +46,7 @@ export async function insertWord(
 }
 
 // 읽기  검색창에 단어를 검색하는 경우
-export async function fetchWordDetails(
-  searchWordRequest: SearchWordRequest,
-): Promise<SearchWordResponse> {
-  const response = new SearchWordResponse();
+export async function fetchWordDetails(searchWordRequest: SearchWordRequest) {
   // Fetch the word data from the database with pending set to false
   const wordDataArray = await prisma.word.findMany({
     where: {
@@ -64,8 +61,7 @@ export async function fetchWordDetails(
 
   // If no matching word is found, return an error message
   if (wordDataArray.length === 0) {
-    response.result = false;
-    return response;
+    return { result: false };
   }
 
   // Iterate through the wordDataArray and process each wordData
@@ -73,16 +69,17 @@ export async function fetchWordDetails(
     // Count the number of likes (excluding dislikes)
     const numberOfLikes = wordData.likes.filter((like) => like.like).length;
 
-    // Return the word, definition, example, username, registered_time, and the number of likes
-    response.result = true;
-    response.word = wordData.word;
-    response.definition = wordData.definition;
-    response.example = wordData.example;
-    response.username = wordData.username;
-    response.registerd_time = wordData.registered_time;
-    response.numberOfLikes = numberOfLikes;
-    response.wordId = wordData.id;
-    return response;
+    // Return the word, definition, username, registered_time, and the number of likes
+    console.log('wordData:', wordData);
+    return {
+      word: wordData.word,
+      definition: wordData.definition,
+      username: wordData.registrar.username,
+      userid: wordData.registrar.id,
+      registered_time: wordData.registered_time,
+      numberOfLikes: numberOfLikes,
+      wordId: wordData.id,
+    };
   });
 
   return wordDetailsArray;
@@ -189,7 +186,7 @@ export async function approveWord(
 ): Promise<SearchWordResponse> {
   // Update the word's pending value to false
   const response = new SearchWordResponse();
-  const updatedWord = await prisma.word.update({
+   await prisma.word.update({
     where: {
       id: searchWordRequest.wordId,
     },
@@ -203,21 +200,19 @@ export async function approveWord(
 }
 
 export async function approveAllPendingWords() {
-  
   const kstDate = getCurrentKSTDate();
-    const updatedWords = await prisma.word.updateMany({
-      where: {
-        pending: true,
-      },
-      data: {
-        pending: false,
-        registered_time: kstDate
-      },
-    });
+  const updatedWords = await prisma.word.updateMany({
+    where: {
+      pending: true,
+    },
+    data: {
+      pending: false,
+      registered_time: kstDate,
+    },
+  });
 
-   
-    return updatedWords;
-} 
+  return updatedWords;
+}
 
 // 단어 승인 거절로 인한 삭제
 export async function deleteUnapprovedWord(
@@ -249,33 +244,43 @@ export async function deleteUnapprovedWord(
     return response;
   }
 }
-// 7일간 단어를 뽑아온 후 좋아요 순으로 내림차순
 export async function fetchPopularWordsFromLastWeek() {
-  // Calculate the date 7 days ago
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  try {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  // Fetch all words registered within the last 7 days
-  const wordsFromLastWeek = await prisma.word.findMany({
-    where: {
-      registered_time: {
-        gte: sevenDaysAgo,
+    const words = await prisma.word.findMany({
+      where: {
+        AND: [{ registered_time: { gte: oneWeekAgo } }, { pending: false }],
       },
-    },
-    include: {
-      likes: true,
-    },
-  });
+      include: {
+        likes: true,
+      },
+      orderBy: {
+        likes: {
+          _count: 'desc',
+        },
+      },
+    });
+    if (words.length == 0) {
+      return { message: 'Word not found'}
+    }
 
-  // Calculate the total likes count for each word and sort them in descending order
-  const popularWords = wordsFromLastWeek
-    .map((word) => ({
-      ...word,
-      totalLikes: word.likes.filter((like) => like.like).length,
-    }))
-    .sort((a, b) => b.totalLikes - a.totalLikes);
+    const wordsWithTotalLikes = words.map((word) => {
+      const likes = word.likes.filter((like) => like.like_status).length;
+      const dislikes = word.likes.filter((like) => !like.like_status).length;
+      const totalLikes = likes - dislikes;
 
-  return popularWords;
+      return {
+        ...word,
+        totalLikes,
+      };
+    });
+    return wordsWithTotalLikes;
+  } catch (error) {
+    console.error('Error fetching popular words from last week:', error);
+    throw error;
+  }
 }
 
 // 내가(유저) 등록한 단어 불러오기

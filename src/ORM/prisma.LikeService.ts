@@ -13,7 +13,7 @@ export async function toggleLikeExpression(
   const response = new UserExpressionResponse();
   const existingLike = await prisma.like.findUnique({
     where: {
-      wordId_userId: {
+      userId_wordId: {
         wordId: userExpressionRequest.wordId,
         userId: userExpressionRequest.userId,
       },
@@ -21,23 +21,24 @@ export async function toggleLikeExpression(
   });
 
   // If there is no existing like record, create a new one with the given expression
-  if (!existingLike) {
+
+  if (existingLike === null) {
     const newLike = await prisma.like.create({
       data: {
-        like: userExpressionRequest.expression,
+        like_status: userExpressionRequest.expression,
         wordId: userExpressionRequest.wordId,
         userId: userExpressionRequest.userId,
       },
     });
-    response.expression = newLike.data.like;
-    response.wordId = newLike.data.wordId;
-    response.userId = newLike.data.userId;
+
+    response.expression = newLike.like_status;
+    response.wordId = newLike.wordId;
+    response.userId = newLike.userId;
     response.result = true;
     return response;
   }
-
   // If the existing like record has the same expression value, delete the record (revoke the expression)
-  if (existingLike.like === userExpressionRequest.expression) {
+  else if (existingLike.like_status === userExpressionRequest.expression) {
     await prisma.like.delete({
       where: {
         id: existingLike.id,
@@ -54,7 +55,7 @@ export async function toggleLikeExpression(
       id: existingLike.id,
     },
     data: {
-      like: userExpressionRequest.expression,
+      like_status: userExpressionRequest.expression,
     },
   });
   response.expression = userExpressionRequest.expression;

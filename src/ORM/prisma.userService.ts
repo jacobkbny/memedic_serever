@@ -43,7 +43,6 @@ export async function insertUserData(
     },
   });
 
-  console.log("result:",resulst);
   response.success = true;
   response.message = "가입 완료"
   response.userid = resulst.id;
