@@ -4,6 +4,7 @@ import {
   insertUserData,
   changeUsername,
   deleteUser,
+  getUserInfoByEmail,
 } from './ORM/prisma.userService';
 import { CreateUserRequest } from './dtos/create_user_dto';
 import { DeleteUserRequest, DeleteUserResponse } from './dtos/delete_user_dto';
@@ -64,6 +65,10 @@ export class AppService {
       changeUsernameRequest,
     );
     return response;
+  }
+  async getUserInfo(email:string){
+    const response: InsertUserResponse = await getUserInfoByEmail(email)
+    return response
   }
   // 유저 삭제
   async deleteUser(deleteUserRequest: DeleteUserRequest) {

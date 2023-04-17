@@ -5,6 +5,7 @@ import {
   DeleteUserResponse,
 } from 'src/dtos/delete_user_dto';
 import { InsertUserResponse } from 'src/dtos/Insert_user_dto';
+import { InsertWordResponse } from 'src/dtos/insert_word_dto';
 import { ChangeUsernameRequest } from 'src/dtos/modify_user_dto';
 
 const { PrismaClient } = require('@prisma/client');
@@ -82,6 +83,20 @@ export async function changeUsername(
   response.result = true;
   return response;
 }
+export async function getUserInfoByEmail(email : string): Promise<InsertUserResponse>{
+  const response = new InsertUserResponse();
+  const userInfo = await prisma.user.findUnique({
+    where:{
+      email: email,
+    }
+  })
+
+  response.success = true;
+  response.userid = userInfo.id;
+  response.username = userInfo.username;
+  return response
+}
+
 
 // 유저 삭제
 export async function deleteUser(

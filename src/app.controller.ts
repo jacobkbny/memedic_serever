@@ -5,7 +5,9 @@ import {
   Put,
   Delete,
   Body,
+  Query
 } from '@nestjs/common';
+import { query } from 'express';
 import { AppService } from './app.service';
 import { BookmarkRequest } from './dtos/bookmark_word_dto';
 import { CreateUserRequest } from './dtos/create_user_dto';
@@ -32,10 +34,15 @@ export class AppController {
   }
 
   // 닉네임 변경
-  
   @Put('/changeUsername')
   changeUsername(@Body() changeUsernameRequest: ChangeUsernameRequest) {
     return this.appService.modifyUsername(changeUsernameRequest);
+  }
+
+  // 유저 정보 불러오기 
+  @Get('/getUserInfo')
+  getUserInfo(@Query('email') email: string) {
+    return this.appService.getUserInfo(email)
   }
   // 유저 삭제
   @Delete('/deleteUser')
