@@ -39,8 +39,6 @@ import {
   fetchBookmarkedWordsByUser,
 } from './ORM/prisma.bookmarkService';
 import { BookmarkRequest } from './dtos/bookmark_word_dto';
-import { JwtService } from '@nestjs/jwt';
-import { Auth } from './dtos/user_auth_dto';
 @Injectable()
 export class AppService {
   /*
@@ -66,9 +64,9 @@ export class AppService {
     );
     return response;
   }
-  async getUserInfo(email:string){
-    const response: InsertUserResponse = await getUserInfoByEmail(email)
-    return response
+  async getUserInfo(email: string) {
+    const response: InsertUserResponse = await getUserInfoByEmail(email);
+    return response;
   }
   // 유저 삭제
   async deleteUser(deleteUserRequest: DeleteUserRequest) {
@@ -80,9 +78,9 @@ export class AppService {
     const response: InsertWordResponse = await insertWord(InsertWordRequest);
     return response;
   }
-  async ApproveWords(){
-    const response = await approveAllPendingWords()
-    return response
+  async ApproveWords() {
+    const response = await approveAllPendingWords();
+    return response;
   }
   // 검색창에 단어를 검색하는 경우
   async getWord(

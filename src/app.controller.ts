@@ -5,9 +5,8 @@ import {
   Put,
   Delete,
   Body,
-  Query
+  Query,
 } from '@nestjs/common';
-import { query } from 'express';
 import { AppService } from './app.service';
 import { BookmarkRequest } from './dtos/bookmark_word_dto';
 import { CreateUserRequest } from './dtos/create_user_dto';
@@ -22,9 +21,9 @@ import { SearchWordRequest } from './dtos/search__word_dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post("/ApproveAllForTest")
-  ApproveAllForTest(){
-    return this.appService.ApproveWords()
+  @Post('/ApproveAllForTest')
+  ApproveAllForTest() {
+    return this.appService.ApproveWords();
   }
 
   // 유저 생성 (JWT)
@@ -39,38 +38,44 @@ export class AppController {
     return this.appService.modifyUsername(changeUsernameRequest);
   }
 
-  // 유저 정보 불러오기 
+  // 유저 정보 불러오기
   @Get('/getUserInfo')
   getUserInfo(@Query('email') email: string) {
-    return this.appService.getUserInfo(email)
+    return this.appService.getUserInfo(email);
   }
   // 유저 삭제
   @Delete('/deleteUser')
-  deleteUser(@Body() deleteUserRequest: DeleteUserRequest) {
-    return this.appService.deleteUser(deleteUserRequest);
+  deleteUser(@Query('userid') userid: string) {
+    const deleteUserReqeust: DeleteUserRequest = new DeleteUserRequest();
+    deleteUserReqeust.userid = parseInt(userid);
+    return this.appService.deleteUser(deleteUserReqeust);
   }
   // 단어 등록
-  
+
   @Post('/registerword')
   registerWord(@Body() insertWordRequest: InsertWordRequest) {
     return this.appService.registerWord(insertWordRequest);
   }
 
   // 승인전 단어들 불러오기
-  
+
   @Get('/getallpending')
   getPendingWord() {
     return this.appService.getPendingWords();
   }
   // 검색창에 단어를 검색하는 경우
   @Get('/searchword')
-  searchWord(@Body() searchWordRequest: SearchWordRequest) {
+  searchWord(@Query('word') word: string) {
+    const searchWordRequest: SearchWordRequest = new SearchWordRequest();
+    searchWordRequest.word = word;
     return this.appService.getWord(searchWordRequest);
   }
   // 검색된 단어중 하나를 클릭하여 상세 보기를 원하는 경우
   @Get('/getword')
-  getword(@Body() searchWordRequest: SearchWordRequest) {
-    return this.appService.getWordDetail(searchWordRequest);
+  getword(@Query('wordid') wordid: string) {
+    const searchwordRequest: SearchWordRequest = new SearchWordRequest();
+    searchwordRequest.wordId = parseInt(wordid);
+    return this.appService.getWordDetail(searchwordRequest);
   }
   // 홈 피드 단어 불러오기
   @Get('/getHomeFeed')
@@ -79,53 +84,70 @@ export class AppController {
   }
   // 단어 승인
   @Put('/approval')
-  approval(@Body() searchWordRequest: SearchWordRequest) {
-    return this.appService.approval(searchWordRequest);
+  approval(@Query('wordid') wordid: string) {
+    const searchwordRequest: SearchWordRequest = new SearchWordRequest();
+    searchwordRequest.wordId = parseInt(wordid);
+    return this.appService.approval(searchwordRequest);
   }
   // 단어 승인 거절로 인한 삭제
   @Delete('/removebydenial')
-  removeByDenial(@Body() searchWordRequest: SearchWordRequest) {
-    return this.appService.deleteByDenial(searchWordRequest);
+  removeByDenial(@Query('wordid') wordid: string) {
+    const searchwordRequest: SearchWordRequest = new SearchWordRequest();
+    searchwordRequest.wordId = parseInt(wordid);
+    return this.appService.deleteByDenial(searchwordRequest);
   }
   // 내가(유저) 등록한 단어 불러오기
-  
+
   @Get('/getwordbyuser')
-  getwordByUser(@Body() searchWordRequest: SearchWordRequest) {
-    return this.appService.getWordByUser(searchWordRequest);
+  getwordByUser(@Query('registrarId') registrarId: string) {
+    const searchwordRequest: SearchWordRequest = new SearchWordRequest();
+    searchwordRequest.registrarId = parseInt(registrarId);
+    return this.appService.getWordByUser(searchwordRequest);
   }
 
   // 단어 삭제
-  
   @Delete('/deleteword')
-  deleteWord(@Body() searchWordRequest: SearchWordRequest) {
+  deleteWord(@Query('wordid') wordid: string) {
+    const searchWordRequest: SearchWordRequest = new SearchWordRequest();
+    searchWordRequest.wordId = parseInt(wordid);
     return this.appService.deleteWord(searchWordRequest);
   }
   // 유저의 의사표현
-  
   @Post('/expression')
   expression(@Body() userExpressionRequest: UserExpressionRequest) {
     return this.appService.userExpression(userExpressionRequest);
   }
   //내가(유저가) 좋아요한 단어 불러오기
-  
+
   @Get('/fetchexpression')
-  fetchexpression(@Body() userExpressionReqeust: UserExpressionRequest) {
+  fetchexpression(@Query('userid') userid: string) {
+    const userExpressionReqeust: UserExpressionRequest =
+      new UserExpressionRequest();
+    userExpressionReqeust.userId = parseInt(userid);
     return this.appService.getWordbyUserExpression(userExpressionReqeust);
   }
   // create bookmark
- 
+
   @Post('/bookmarkword')
   bookmarkWord(@Body() bookmarkReqeust: BookmarkRequest) {
     return this.appService.addBookMark(bookmarkReqeust);
   }
   // delete bookmark
-  
+
   @Delete('/removebookmark')
-  removeBookmark(@Body() bookmarkReqeust: BookmarkRequest) {
+  removeBookmark(
+    @Query('userid') userid: string,
+    @Query('wordid') wordid: string,
+  ) {
+    const bookmarkReqeust: BookmarkRequest = new BookmarkRequest();
+    bookmarkReqeust.userId = parseInt(userid);
+    bookmarkReqeust.wordId = parseInt(wordid);
     return this.appService.removeBookMark(bookmarkReqeust);
   }
   @Get('/getbookmarkofuser')
-  getBookmarkOfUser(@Body() bookmarkReqeust: BookmarkRequest) {
+  getBookmarkOfUser(@Query('userid') userid: string) {
+    const bookmarkReqeust: BookmarkRequest = new BookmarkRequest();
+    bookmarkReqeust.userId = parseInt(userid);
     return this.appService.getAllBookmarkedWordsByUser(bookmarkReqeust);
   }
 }

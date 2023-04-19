@@ -67,7 +67,9 @@ export async function fetchWordDetails(searchWordRequest: SearchWordRequest) {
   // Iterate through the wordDataArray and process each wordData
   const wordDetailsArray = wordDataArray.map((wordData) => {
     // Count the number of likes (excluding dislikes)
-    const numberOfLikes = wordData.likes.filter((like) => like.like_status).length;
+    const numberOfLikes = wordData.likes.filter(
+      (like) => like.like_status,
+    ).length;
 
     // Return the word, definition, username, registered_time, and the number of likes
     return {
@@ -107,7 +109,9 @@ export async function fetchWordDetailsById(
   }
 
   // Count the number of likes (excluding dislikes)
-  const numberOfLikes = wordData.likes.filter((like) => like.like_status).length;
+  const numberOfLikes = wordData.likes.filter(
+    (like) => like.like_status,
+  ).length;
 
   // Return the word data, including word, definition, example, username, registered_time, and the number of likes
   response.result = true;
@@ -185,7 +189,7 @@ export async function approveWord(
 ): Promise<SearchWordResponse> {
   // Update the word's pending value to false
   const response = new SearchWordResponse();
-   await prisma.word.update({
+  await prisma.word.update({
     where: {
       id: searchWordRequest.wordId,
     },
@@ -262,7 +266,7 @@ export async function fetchPopularWordsFromLastWeek() {
       },
     });
     if (words.length == 0) {
-      return { message: 'Word not found'}
+      return { message: 'Word not found' };
     }
 
     const wordsWithTotalLikes = words.map((word) => {
