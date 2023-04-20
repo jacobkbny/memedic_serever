@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native","linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,46 +11,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// model User {
-//   id       Int         @id @default(autoincrement())
-//   username String      @unique
-//   email    String      @unique
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   likes    Like[]
-//   defs     Definition[]
-// }
 
-// model Definition {
-//   id       Int         @id @default(autoincrement())
-//   word     String      @unique
-//   def      String
-//   pending  Boolean
-//   username String
-//   registered DateTime  @default(now())
-//   updatedAt DateTime   @updatedAt
-//   user     User        @relation(fields: [username], references: [username])
-//   likes    Like[]
-//   examples Example[]
-// }
-
-// model Example {
-//   id       Int         @id @default(autoincrement())
-//   text     String
-//   def_id   Int
-//   def      Definition  @relation(fields: [def_id], references: [id])
-// }
-
-// model Like {
-//   id       Int         @id @default(autoincrement())
-//   user_id  Int
-//   def_id   Int
-//   liked    Boolean
-//   user     User        @relation(fields: [user_id], references: [id])
-//   def      Definition  @relation(fields: [def_id], references: [id])
-
-//   @@unique([user_id, def_id])
-// }
 
 model User {
   id        Int       @id @default(autoincrement())
