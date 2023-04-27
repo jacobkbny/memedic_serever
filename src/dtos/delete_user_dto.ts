@@ -1,10 +1,10 @@
 export class DeleteWordDTO {
-  username: string;
+  userName: string;
   word: string;
 }
 
 export class DeleteUserRequest {
-  userid: number;
+  userId: number;
 }
 
 export class DeleteUserResponse {

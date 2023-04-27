@@ -5,7 +5,6 @@ import {
   DeleteUserResponse,
 } from 'src/dtos/delete_user_dto';
 import { InsertUserResponse } from 'src/dtos/Insert_user_dto';
-import { InsertWordResponse } from 'src/dtos/insert_word_dto';
 import { ChangeUsernameRequest } from 'src/dtos/modify_user_dto';
 
 const { PrismaClient } = require('@prisma/client');
@@ -17,12 +16,12 @@ export async function insertUserData(
   const response = new InsertUserResponse();
   const existenceByUsername = await prisma.user.findUnique({
     where: {
-      username: createUserRequest.username,
+      username: createUserRequest.userName,
     },
   });
   if (existenceByUsername) {
-    response.success = false;
-    response.message = "닉네임중복"
+    response.result = false;
+    response.message = "닉네임 중복"
     return response;
   }
 
@@ -32,22 +31,22 @@ export async function insertUserData(
     },
   });
   if (existenceByEmail) {
-    response.success = false;
+    response.result = false;
     response.message = "이메일 중복"
     return response;
   }
 
   const resulst = await prisma.user.create({
     data: {
-      username: createUserRequest.username,
+      username: createUserRequest.userName,
       email: createUserRequest.email,
     },
   });
 
-  response.success = true;
+  response.result = true;
   response.message = "가입 완료"
-  response.userid = resulst.id;
-  response.username = resulst.username;
+  response.userId = resulst.id;
+  response.userName = resulst.username;
   return response;
 }
 
@@ -61,7 +60,7 @@ export async function changeUsername(
   const response = new ChangeUserNameResponse();
   const existingUser = await prisma.user.findUnique({
     where: {
-      username: changeUsernameRequest.newUsername,
+      username: changeUsernameRequest.newUserName,
     },
   });
 
@@ -73,10 +72,10 @@ export async function changeUsername(
     // Update the user's username with the new username
     await prisma.user.update({
       where: {
-        id: changeUsernameRequest.userid,
+        id: changeUsernameRequest.userId,
       },
       data: {
-        username: changeUsernameRequest.newUsername,
+        username: changeUsernameRequest.newUserName,
       },
     });
   }
@@ -91,14 +90,14 @@ export async function getUserInfoByEmail(email : string): Promise<InsertUserResp
     }
   })
   if (userInfo == null) {
-    response.success = false;
+    response.result = false;
     response.message = "User not found"
     return response
   }
 
-  response.success = true;
-  response.userid = userInfo.id;
-  response.username = userInfo.username;
+  response.result = true;
+  response.userId = userInfo.id;
+  response.userName = userInfo.username;
   return response
 }
 
@@ -109,29 +108,39 @@ export async function deleteUser(
 ): Promise<DeleteUserResponse> {
   const response = new DeleteUserResponse();
   // Begin a transaction
+  const userInfo = await prisma.user.findUnique({
+    where:{
+      userId:deleteUserRequest.userId
+    }
+  })
+  
+  if(userInfo == null){
+    response.result = false;
+  } 
+
   await prisma.$transaction([
     // Delete all the user's bookmarks
     prisma.bookmark.deleteMany({
       where: {
-        userId: deleteUserRequest.userid,
+        userId: deleteUserRequest.userId,
       },
     }),
     // Delete all the user's likes/dislikes
     prisma.like.deleteMany({
       where: {
-        userId: deleteUserRequest.userid,
+        userId: deleteUserRequest.userId,
       },
     }),
     // Delete all the words registered by the user
     prisma.word.deleteMany({
       where: {
-        registrarId: deleteUserRequest.userid,
+        registrarId: deleteUserRequest.userId,
       },
     }),
     // Delete the user
     prisma.user.delete({
       where: {
-        id: deleteUserRequest.userid,
+        id: deleteUserRequest.userId,
       },
     }),
   ]);

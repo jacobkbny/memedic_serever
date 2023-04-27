@@ -10,9 +10,11 @@ export class SearchWordResponse {
   wordId?: number;
   definition?: string;
   example?: string;
-  username?: string;
-  registerd_time?: Date;
+  userName?: string;
+  registerdTime?: Date;
   numberOfLikes?: number;
+  userId?: number;
+  message?: string;
 }
 
 /*

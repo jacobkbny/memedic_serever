@@ -1,4 +1,4 @@
 export class CreateUserRequest {
-  username: string;
+  userName: string;
   email: string;
 }

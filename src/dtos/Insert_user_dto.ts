@@ -1,6 +1,6 @@
 export class InsertUserResponse {
-  success: boolean;
+  result: boolean;
   message?: string;
-  userid?:number
-  username?:string
+  userId?:number
+  userName?:string
 }

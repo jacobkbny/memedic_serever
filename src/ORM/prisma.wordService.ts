@@ -24,6 +24,7 @@ export async function insertWord(
   // If the user is not found, return an error message
   if (!registrar) {
     response.result = false;
+    response.message = "유저 정보를 찾을 수 없음"
     return response;
   }
 
@@ -118,9 +119,10 @@ export async function fetchWordDetailsById(
   (response.wordId = wordData.id), (response.word = wordData.word);
   response.definition = wordData.definition;
   response.example = wordData.example;
-  response.username = wordData.registrar.username;
-  response.registerd_time = wordData.registerd_time;
+  response.userName = wordData.registrar.username;
+  response.registerdTime = wordData.registerd_time;
   response.numberOfLikes = numberOfLikes;
+  response.userId = wordData.registrar.id
   return response;
 }
 
@@ -139,10 +141,12 @@ export async function deleteWord(
   if (!wordData) {
     // If the word does not exist, return an error message
     response.result = false;
+    response.message = "단어를 찾을 수 없음"
     return response;
   } else if (wordData.registrarId !== searchWordRequest.registrarId) {
     // If the user is not the one who registered the word, return an error message
     response.result = false;
+    response.message = "작성자 아님"
     return response;
   } else {
     // Begin a transaction
@@ -180,6 +184,9 @@ export async function fetchAllPendingWords() {
       pending: true,
     },
   });
+  if(pendingWords.length === 0){
+    return {result: false}
+  }
   return pendingWords;
 }
 
@@ -189,6 +196,16 @@ export async function approveWord(
 ): Promise<SearchWordResponse> {
   // Update the word's pending value to false
   const response = new SearchWordResponse();
+  const wordInfo = await prisma.word.findUnique({
+    where: {
+      id: searchWordRequest.wordId
+    }
+  })
+  if(wordInfo == null){
+    response.result = false
+    return response
+  }
+
   await prisma.word.update({
     where: {
       id: searchWordRequest.wordId,
@@ -294,7 +311,9 @@ export async function fetchWordsByUser(searchWordRequest: SearchWordRequest) {
       registrarId: searchWordRequest.registrarId,
     },
   });
-
+  if (userWords.length == 0){
+    return {result : false}
+  }
   return userWords;
 }
 

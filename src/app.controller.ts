@@ -6,16 +6,20 @@ import {
   Delete,
   Body,
   Query,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AppService } from './app.service';
 import { BookmarkRequest } from './dtos/bookmark_word_dto';
+import { ChangeUserNameResponse } from './dtos/changeUsername_response_dto';
 import { CreateUserRequest } from './dtos/create_user_dto';
-import { DeleteUserRequest } from './dtos/delete_user_dto';
-import { InsertWordRequest } from './dtos/insert_word_dto';
+import { DeleteUserRequest, DeleteUserResponse } from './dtos/delete_user_dto';
+import { InsertUserResponse } from './dtos/Insert_user_dto';
+import { InsertWordRequest, InsertWordResponse } from './dtos/insert_word_dto';
 import { UserExpressionRequest } from './dtos/like__user_dto';
 import { ChangeUsernameRequest } from './dtos/modify_user_dto';
 import { RequestHeader } from './dtos/request_header_dto';
-import { SearchWordRequest } from './dtos/search__word_dto';
+import { SearchWordRequest, SearchWordResponse } from './dtos/search__word_dto';
 
 @Controller()
 export class AppController {
@@ -28,99 +32,190 @@ export class AppController {
 
   // 유저 생성 (JWT)
   @Post('/createUser')
-  createUser(@Body() createUserRequest: CreateUserRequest) {
-    return this.appService.insertUser(createUserRequest);
+  async createUser(
+    @Res() res: Response,
+    @Body() createUserRequest: CreateUserRequest,
+  ) {
+    const insertUserResponse: InsertUserResponse =
+      await this.appService.insertUser(createUserRequest);
+    if (
+      insertUserResponse.message === '닉네임 중복' ||
+      insertUserResponse.message === '이메일 중복'
+    ) {
+      res.status(409).json(insertUserResponse);
+    } else {
+      res.status(201).json(insertUserResponse);
+    }
   }
 
   // 닉네임 변경
   @Put('/changeUsername')
-  changeUsername(@Body() changeUsernameRequest: ChangeUsernameRequest) {
-    return this.appService.modifyUsername(changeUsernameRequest);
+  async changeUsername(
+    @Res() res: Response,
+    @Body() changeUsernameRequest: ChangeUsernameRequest,
+  ) {
+    const changeUserNameResponse: ChangeUserNameResponse =
+      await this.appService.modifyUsername(changeUsernameRequest);
+    if (changeUserNameResponse.result === false) {
+      res.status(409).json(changeUserNameResponse);
+    } else {
+      res.status(200).json(changeUserNameResponse);
+    }
   }
 
   // 유저 정보 불러오기
   @Get('/getUserInfo')
-  getUserInfo(@Query('email') email: string) {
-    return this.appService.getUserInfo(email);
+  async getUserInfo(@Res() res: Response, @Query('email') email: string) {
+    const insertUserResponse: InsertUserResponse =
+      await this.appService.getUserInfo(email);
+    if (insertUserResponse.result === false) {
+      res.status(404).json(insertUserResponse);
+    } else {
+      res.status(200).json(insertUserResponse);
+    }
   }
   // 유저 삭제
   @Delete('/deleteUser')
-  deleteUser(@Query('userid') userid: string) {
+  async deleteUser(@Res() res: Response, @Query('userId') userid: string) {
     const deleteUserReqeust: DeleteUserRequest = new DeleteUserRequest();
-    deleteUserReqeust.userid = parseInt(userid);
-    return this.appService.deleteUser(deleteUserReqeust);
+    deleteUserReqeust.userId = parseInt(userid);
+    const deleteUserResponse: DeleteUserResponse =
+      await this.appService.deleteUser(deleteUserReqeust);
+    if (deleteUserResponse.result === false) {
+      res.status(404).json(deleteUserResponse);
+    } else {
+      res.status(202).json(deleteUserResponse);
+    }
   }
   // 단어 등록
 
-  @Post('/registerword')
-  registerWord(@Body() insertWordRequest: InsertWordRequest) {
-    return this.appService.registerWord(insertWordRequest);
+  @Post('/registerWord')
+  async registerWord(
+    @Res() res: Response,
+    @Body() insertWordRequest: InsertWordRequest,
+  ) {
+    const insertWordResponse: InsertWordResponse =
+      await this.appService.registerWord(insertWordRequest);
+    if (insertWordResponse.result === false) {
+      res.status(404).json(insertWordResponse);
+    } else {
+      res.status(201).json(insertWordResponse);
+    }
   }
 
   // 승인전 단어들 불러오기
 
-  @Get('/getallpending')
-  getPendingWord() {
-    return this.appService.getPendingWords();
+  @Get('/getAllPending')
+  async getPendingWord(@Res() res: Response) {
+    const result = await this.appService.getPendingWords()
+    if (result.result === false) {
+      res.status(404).json(result);
+    }else{
+      res.status(200).json(result)
+    }
+
   }
   // 검색창에 단어를 검색하는 경우
-  @Get('/searchword')
-  searchWord(@Query('word') word: string) {
+  @Get('/searchWord')
+  async searchWord(@Res() res: Response, @Query('word') word: string) {
     const searchWordRequest: SearchWordRequest = new SearchWordRequest();
     searchWordRequest.word = word;
-    return this.appService.getWord(searchWordRequest);
+    const result = await this.appService.getWord(searchWordRequest);
+    if (result === false) {
+      res.status(404).json(result);
+    } else {
+      res.status(200).json(result);
+    }
   }
   // 검색된 단어중 하나를 클릭하여 상세 보기를 원하는 경우
   @Get('/getword')
-  getword(@Query('wordid') wordid: string) {
+  async getword(@Res() res: Response, @Query('wordId') wordid: string) {
     const searchwordRequest: SearchWordRequest = new SearchWordRequest();
     searchwordRequest.wordId = parseInt(wordid);
-    return this.appService.getWordDetail(searchwordRequest);
+    const searchWordResponse: SearchWordResponse =
+      await this.appService.getWordDetail(searchwordRequest);
+    if (searchWordResponse.result === false) {
+      res.status(404).json(searchWordResponse);
+    } else {
+      res.status(200).json(searchWordResponse);
+    }
   }
   // 홈 피드 단어 불러오기
   @Get('/getHomeFeed')
-  getHomeFeed() {
+  async getHomeFeed() {
     return this.appService.getHomeFeeds();
   }
   // 단어 승인
   @Put('/approval')
-  approval(@Query('wordid') wordid: string) {
-    const searchwordRequest: SearchWordRequest = new SearchWordRequest();
-    searchwordRequest.wordId = parseInt(wordid);
+  async approval(
+    @Res() res: Response,
+    @Body() searchwordRequest: SearchWordRequest,
+  ) {
+    const searchWordResponse: SearchWordResponse =
+      await this.appService.getWordDetail(searchwordRequest);
+    if (searchWordResponse.result === false) {
+      res.status(404).json(searchWordResponse);
+    } else {
+      res.status(200).json(searchWordResponse);
+    }
     return this.appService.approval(searchwordRequest);
   }
   // 단어 승인 거절로 인한 삭제
-  @Delete('/removebydenial')
-  removeByDenial(@Query('wordid') wordid: string) {
+  @Delete('/removeByDenial')
+  async removeByDenial(@Res() res: Response, @Query('wordId') wordid: string) {
     const searchwordRequest: SearchWordRequest = new SearchWordRequest();
     searchwordRequest.wordId = parseInt(wordid);
-    return this.appService.deleteByDenial(searchwordRequest);
+    const searchWordResponse: SearchWordResponse = await this.appService.deleteByDenial(searchwordRequest)
+    if (searchWordResponse.result === false){
+      res.status(404).json(searchWordResponse)
+    }else{
+      res.status(200).json(searchWordResponse)
+    }
   }
   // 내가(유저) 등록한 단어 불러오기
 
-  @Get('/getwordbyuser')
-  getwordByUser(@Query('registrarId') registrarId: string) {
+  @Get('/getWordByUser')
+  async getwordByUser(
+    @Res() res: Response,
+    @Query('userId') registrarId: string,
+  ) {
     const searchwordRequest: SearchWordRequest = new SearchWordRequest();
     searchwordRequest.registrarId = parseInt(registrarId);
-    return this.appService.getWordByUser(searchwordRequest);
+    const searchWordResponse = await this.appService.getWordByUser(searchwordRequest)
+    if(searchWordResponse.result === false){
+      res.status(404).json(searchWordResponse)
+    }else{
+      res.status(200).json(searchWordResponse)
+    }
   }
 
   // 단어 삭제
   @Delete('/deleteword')
-  deleteWord(@Query('wordid') wordid: string) {
+  async deleteWord(@Res() res: Response, @Query('wordId') wordid: string) {
     const searchWordRequest: SearchWordRequest = new SearchWordRequest();
     searchWordRequest.wordId = parseInt(wordid);
-    return this.appService.deleteWord(searchWordRequest);
+    const searchWordResponse : SearchWordResponse = await this.appService.deleteWord(searchWordRequest)
+    if (searchWordResponse.result === false && searchWordResponse.message ==="단어를 찾을 수 없음"){
+      res.status(404).json(searchWordResponse)
+    }else if(searchWordResponse.result === false && searchWordResponse.message === "작성자 아님"){
+      res.status(400).json(searchWordResponse)
+    }else{
+      res.status(202).json(searchWordResponse)
+    }
+    
   }
   // 유저의 의사표현
   @Post('/expression')
-  expression(@Body() userExpressionRequest: UserExpressionRequest) {
+  async expression(
+    @Res() res: Response,
+    @Body() userExpressionRequest: UserExpressionRequest,
+  ) {
     return this.appService.userExpression(userExpressionRequest);
   }
   //내가(유저가) 좋아요한 단어 불러오기
 
   @Get('/fetchexpression')
-  fetchexpression(@Query('userid') userid: string) {
+  async fetchexpression(@Res() res: Response, @Query('userId') userid: string) {
     const userExpressionReqeust: UserExpressionRequest =
       new UserExpressionRequest();
     userExpressionReqeust.userId = parseInt(userid);
@@ -129,13 +224,17 @@ export class AppController {
   // create bookmark
 
   @Post('/bookmarkword')
-  bookmarkWord(@Body() bookmarkReqeust: BookmarkRequest) {
+  async bookmarkWord(
+    @Res() res: Response,
+    @Body() bookmarkReqeust: BookmarkRequest,
+  ) {
     return this.appService.addBookMark(bookmarkReqeust);
   }
   // delete bookmark
 
   @Delete('/removebookmark')
-  removeBookmark(
+  async removeBookmark(
+    @Res() res: Response,
     @Query('userid') userid: string,
     @Query('wordid') wordid: string,
   ) {
@@ -145,7 +244,7 @@ export class AppController {
     return this.appService.removeBookMark(bookmarkReqeust);
   }
   @Get('/getbookmarkofuser')
-  getBookmarkOfUser(@Query('userid') userid: string) {
+  getBookmarkOfUser(@Res() res: Response, @Query('userid') userid: string) {
     const bookmarkReqeust: BookmarkRequest = new BookmarkRequest();
     bookmarkReqeust.userId = parseInt(userid);
     return this.appService.getAllBookmarkedWordsByUser(bookmarkReqeust);

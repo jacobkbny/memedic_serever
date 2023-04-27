@@ -8,4 +8,5 @@ export class InsertWordRequest {
 
 export class InsertWordResponse {
   result: boolean;
+  message?: string;
 }

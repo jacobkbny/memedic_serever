@@ -85,8 +85,8 @@ export class AppService {
   // 검색창에 단어를 검색하는 경우
   async getWord(
     searchWordRequest: SearchWordRequest,
-  ): Promise<SearchWordResponse> {
-    const response: SearchWordResponse = await fetchWordDetails(
+  )  {
+    const response = await fetchWordDetails(
       searchWordRequest,
     );
     return response;
