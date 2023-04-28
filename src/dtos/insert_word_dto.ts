@@ -3,7 +3,7 @@ export class InsertWordRequest {
   word: string;
   definition: string;
   example: string;
-  registrar: string;
+  registrarId: number;
 }
 
 export class InsertWordResponse {

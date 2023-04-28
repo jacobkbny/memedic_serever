@@ -104,7 +104,6 @@ export class AppController {
   }
 
   // 승인전 단어들 불러오기
-
   @Get('/getAllPending')
   async getPendingWord(@Res() res: Response) {
     const result = await this.appService.getPendingWords();
@@ -120,7 +119,7 @@ export class AppController {
     const searchWordRequest: SearchWordRequest = new SearchWordRequest();
     searchWordRequest.word = word;
     const result = await this.appService.getWord(searchWordRequest);
-    if (result === false) {
+    if (result.result == false) {
       res.status(404).json(result);
     } else {
       res.status(200).json(result);
@@ -193,9 +192,14 @@ export class AppController {
 
   // 단어 삭제
   @Delete('/deleteWord')
-  async deleteWord(@Res() res: Response, @Query('wordId') wordid: string) {
+  async deleteWord(
+    @Res() res: Response,
+    @Query('wordId') wordid: string,
+    @Query('registrarId') registrarId: string,
+  ) {
     const searchWordRequest: SearchWordRequest = new SearchWordRequest();
     searchWordRequest.wordId = parseInt(wordid);
+    searchWordRequest.registrarId = parseInt(registrarId);
     const searchWordResponse: SearchWordResponse =
       await this.appService.deleteWord(searchWordRequest);
     if (
@@ -216,16 +220,17 @@ export class AppController {
   @Post('/expression')
   async expression(
     @Res() res: Response,
-    @Body() userExpressionRequest: UserExpressionRequest,    
+    @Body() userExpressionRequest: UserExpressionRequest,
   ) {
-    if(hasNonNullValues(userExpressionRequest)){
-      res.status(400)
+    if (hasNonNullValues(userExpressionRequest)) {
+      res.status(400);
       return;
-    }
-    return this.appService.userExpression(userExpressionRequest);
+    } 
+    const userExpressionResponse = await this.appService.userExpression(userExpressionRequest)
+    res.status(202).json(userExpressionResponse);
   }
   //내가(유저가) 좋아요한 단어 불러오기
-  @Get('/fetchexpression')
+  @Get('/fetchExpression')
   async fetchexpression(@Res() res: Response, @Query('userId') userid: string) {
     const userExpressionReqeust: UserExpressionRequest =
       new UserExpressionRequest();
@@ -233,53 +238,57 @@ export class AppController {
     const result = await this.appService.getWordbyUserExpression(
       userExpressionReqeust,
     );
-    if (result.length == 0) {
-      const response = {result : false , message : "좋아요 표시한 단어 없음"}
+    if (result.wordIds.length == 0) {
+      const response = { result: false, message: '좋아요 표시한 단어 없음' };
       res.status(404).json(response);
     } else {
       res.status(200).json(result);
     }
   }
   // create bookmark
-
-  @Post('/bookmarkword')
+  @Post('/bookMarkWord')
   async bookmarkWord(
     @Res() res: Response,
     @Body() bookmarkReqeust: BookmarkRequest,
   ) {
-    const bookMarkResponse = await this.appService.addBookMark(bookmarkReqeust)
-    if(bookMarkResponse.result == false){
-      res.status(409).json(bookMarkResponse)
-    }else{
-      res.status(201).json(bookMarkResponse)
+    const bookMarkResponse = await this.appService.addBookMark(bookmarkReqeust);
+    if (bookMarkResponse.result == false) {
+      res.status(409).json(bookMarkResponse);
+    } else {
+      res.status(201).json(bookMarkResponse);
     }
-    
   }
   // delete bookmark
-  @Delete('/removebookmark')
+  @Delete('/removeBookMark')
   async removeBookmark(
     @Res() res: Response,
-    @Query('userid') userid: string,
-    @Query('wordid') wordid: string,
+    @Query('userId') userid: string,
+    @Query('wordId') wordid: string,
   ) {
     const bookmarkReqeust: BookmarkRequest = new BookmarkRequest();
     bookmarkReqeust.userId = parseInt(userid);
     bookmarkReqeust.wordId = parseInt(wordid);
-    const bookMarkResponse = await this.appService.removeBookMark(bookmarkReqeust);
-    if(bookMarkResponse.result == false){
-      res.status(404).json(bookmarkReqeust)
-    }else{
-      res.status(202).json(bookMarkResponse)
+    const bookMarkResponse = await this.appService.removeBookMark(
+      bookmarkReqeust,
+    );
+    if (bookMarkResponse.result == false) {
+      res.status(404).json(bookmarkReqeust);
+    } else {
+      res.status(202).json(bookMarkResponse);
     }
-    
   }
-  @Get('/getbookmarkofuser')
-  async getBookmarkOfUser(@Res() res: Response, @Query('userid') userid: string) {
+  @Get('/getBookMarkOfUser')
+  async getBookmarkOfUser(
+    @Res() res: Response,
+    @Query('userId') userid: string,
+  ) {
     const bookmarkReqeust: BookmarkRequest = new BookmarkRequest();
     bookmarkReqeust.userId = parseInt(userid);
-    const result = await this.appService.getAllBookmarkedWordsByUser(bookmarkReqeust)
+    const result = await this.appService.getAllBookmarkedWordsByUser(
+      bookmarkReqeust,
+    );
     if (result.length == 0) {
-      const response = {result : false , message : "북마크 표시한 단어 없음"}
+      const response = { result: false, message: '북마크 표시한 단어 없음' };
       res.status(404).json(response);
     } else {
       res.status(200).json(result);

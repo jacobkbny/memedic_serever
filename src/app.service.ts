@@ -137,7 +137,10 @@ export class AppService {
   //내가(유저가) 좋아요한 단어 불러오기
   async getWordbyUserExpression(userExpression: UserExpressionRequest) {
     const response = await fetchLikedWordsByUser(userExpression);
-    return response;
+    const result = {
+      wordIds : response
+    }
+    return result;
   }
   // add BookMark
   async addBookMark(bookmark: BookmarkRequest) {

@@ -17,7 +17,7 @@ export async function insertWord(
   // Find the user with the given username
   const registrar = await prisma.user.findUnique({
     where: {
-      username: inserwordRequest.registrar,
+      id: inserwordRequest.registrarId,
     },
   });
 
@@ -113,14 +113,14 @@ export async function fetchWordDetailsById(
   const numberOfLikes = wordData.likes.filter(
     (like) => like.like_status,
   ).length;
-
   // Return the word data, including word, definition, example, username, registered_time, and the number of likes
+  wordData
   response.result = true;
   (response.wordId = wordData.id), (response.word = wordData.word);
   response.definition = wordData.definition;
   response.example = wordData.example;
   response.userName = wordData.registrar.username;
-  response.registerdTime = wordData.registerd_time;
+  response.registerdTime = wordData.registered_time;
   response.numberOfLikes = numberOfLikes;
   response.userId = wordData.registrar.id
   return response;
@@ -195,6 +195,7 @@ export async function approveWord(
   searchWordRequest: SearchWordRequest,
 ): Promise<SearchWordResponse> {
   // Update the word's pending value to false
+  const kstDate = getCurrentKSTDate();
   const response = new SearchWordResponse();
   const wordInfo = await prisma.word.findUnique({
     where: {
@@ -212,9 +213,9 @@ export async function approveWord(
     },
     data: {
       pending: false,
+      registered_time:kstDate
     },
   });
-
   response.result = true;
   return response;
 }

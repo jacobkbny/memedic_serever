@@ -110,7 +110,7 @@ export async function deleteUser(
   // Begin a transaction
   const userInfo = await prisma.user.findUnique({
     where:{
-      userId:deleteUserRequest.userId
+      id:deleteUserRequest.userId
     }
   })
   

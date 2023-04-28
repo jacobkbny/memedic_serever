@@ -50,7 +50,7 @@ export async function toggleLikeExpression(
   }
 
   // If the existing like record has a different expression value, update the record (user changed their mind)
-  const updatedLike = await prisma.like.update({
+   await prisma.like.update({
     where: {
       id: existingLike.id,
     },
