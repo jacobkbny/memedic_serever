@@ -71,7 +71,7 @@ export async function fetchLikedWordsByUser(
   const userLikes = await prisma.like.findMany({
     where: {
       userId: userExpressionRequest.userId,
-      like: true,
+      like_status: true,
     },
     include: {
       word: true,

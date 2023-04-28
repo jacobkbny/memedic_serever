@@ -107,13 +107,12 @@ export class AppController {
 
   @Get('/getAllPending')
   async getPendingWord(@Res() res: Response) {
-    const result = await this.appService.getPendingWords()
+    const result = await this.appService.getPendingWords();
     if (result.result === false) {
       res.status(404).json(result);
-    }else{
-      res.status(200).json(result)
+    } else {
+      res.status(200).json(result);
     }
-
   }
   // 검색창에 단어를 검색하는 경우
   @Get('/searchWord')
@@ -165,11 +164,12 @@ export class AppController {
   async removeByDenial(@Res() res: Response, @Query('wordId') wordid: string) {
     const searchwordRequest: SearchWordRequest = new SearchWordRequest();
     searchwordRequest.wordId = parseInt(wordid);
-    const searchWordResponse: SearchWordResponse = await this.appService.deleteByDenial(searchwordRequest)
-    if (searchWordResponse.result === false){
-      res.status(404).json(searchWordResponse)
-    }else{
-      res.status(200).json(searchWordResponse)
+    const searchWordResponse: SearchWordResponse =
+      await this.appService.deleteByDenial(searchwordRequest);
+    if (searchWordResponse.result === false) {
+      res.status(404).json(searchWordResponse);
+    } else {
+      res.status(200).json(searchWordResponse);
     }
   }
   // 내가(유저) 등록한 단어 불러오기
@@ -181,45 +181,64 @@ export class AppController {
   ) {
     const searchwordRequest: SearchWordRequest = new SearchWordRequest();
     searchwordRequest.registrarId = parseInt(registrarId);
-    const searchWordResponse = await this.appService.getWordByUser(searchwordRequest)
-    if(searchWordResponse.result === false){
-      res.status(404).json(searchWordResponse)
-    }else{
-      res.status(200).json(searchWordResponse)
+    const searchWordResponse = await this.appService.getWordByUser(
+      searchwordRequest,
+    );
+    if (searchWordResponse.result === false) {
+      res.status(404).json(searchWordResponse);
+    } else {
+      res.status(200).json(searchWordResponse);
     }
   }
 
   // 단어 삭제
-  @Delete('/deleteword')
+  @Delete('/deleteWord')
   async deleteWord(@Res() res: Response, @Query('wordId') wordid: string) {
     const searchWordRequest: SearchWordRequest = new SearchWordRequest();
     searchWordRequest.wordId = parseInt(wordid);
-    const searchWordResponse : SearchWordResponse = await this.appService.deleteWord(searchWordRequest)
-    if (searchWordResponse.result === false && searchWordResponse.message ==="단어를 찾을 수 없음"){
-      res.status(404).json(searchWordResponse)
-    }else if(searchWordResponse.result === false && searchWordResponse.message === "작성자 아님"){
-      res.status(400).json(searchWordResponse)
-    }else{
-      res.status(202).json(searchWordResponse)
+    const searchWordResponse: SearchWordResponse =
+      await this.appService.deleteWord(searchWordRequest);
+    if (
+      searchWordResponse.result === false &&
+      searchWordResponse.message === '단어를 찾을 수 없음'
+    ) {
+      res.status(404).json(searchWordResponse);
+    } else if (
+      searchWordResponse.result === false &&
+      searchWordResponse.message === '작성자 아님'
+    ) {
+      res.status(400).json(searchWordResponse);
+    } else {
+      res.status(202).json(searchWordResponse);
     }
-    
   }
   // 유저의 의사표현
   @Post('/expression')
   async expression(
     @Res() res: Response,
-    @Body() userExpressionRequest: UserExpressionRequest,
+    @Body() userExpressionRequest: UserExpressionRequest,    
   ) {
+    if(hasNonNullValues(userExpressionRequest)){
+      res.status(400)
+      return;
+    }
     return this.appService.userExpression(userExpressionRequest);
   }
   //내가(유저가) 좋아요한 단어 불러오기
-
   @Get('/fetchexpression')
   async fetchexpression(@Res() res: Response, @Query('userId') userid: string) {
     const userExpressionReqeust: UserExpressionRequest =
       new UserExpressionRequest();
     userExpressionReqeust.userId = parseInt(userid);
-    return this.appService.getWordbyUserExpression(userExpressionReqeust);
+    const result = await this.appService.getWordbyUserExpression(
+      userExpressionReqeust,
+    );
+    if (result.length == 0) {
+      const response = {result : false , message : "좋아요 표시한 단어 없음"}
+      res.status(404).json(response);
+    } else {
+      res.status(200).json(result);
+    }
   }
   // create bookmark
 
@@ -228,10 +247,15 @@ export class AppController {
     @Res() res: Response,
     @Body() bookmarkReqeust: BookmarkRequest,
   ) {
-    return this.appService.addBookMark(bookmarkReqeust);
+    const bookMarkResponse = await this.appService.addBookMark(bookmarkReqeust)
+    if(bookMarkResponse.result == false){
+      res.status(409).json(bookMarkResponse)
+    }else{
+      res.status(201).json(bookMarkResponse)
+    }
+    
   }
   // delete bookmark
-
   @Delete('/removebookmark')
   async removeBookmark(
     @Res() res: Response,
@@ -241,13 +265,25 @@ export class AppController {
     const bookmarkReqeust: BookmarkRequest = new BookmarkRequest();
     bookmarkReqeust.userId = parseInt(userid);
     bookmarkReqeust.wordId = parseInt(wordid);
-    return this.appService.removeBookMark(bookmarkReqeust);
+    const bookMarkResponse = await this.appService.removeBookMark(bookmarkReqeust);
+    if(bookMarkResponse.result == false){
+      res.status(404).json(bookmarkReqeust)
+    }else{
+      res.status(202).json(bookMarkResponse)
+    }
+    
   }
   @Get('/getbookmarkofuser')
-  getBookmarkOfUser(@Res() res: Response, @Query('userid') userid: string) {
+  async getBookmarkOfUser(@Res() res: Response, @Query('userid') userid: string) {
     const bookmarkReqeust: BookmarkRequest = new BookmarkRequest();
     bookmarkReqeust.userId = parseInt(userid);
-    return this.appService.getAllBookmarkedWordsByUser(bookmarkReqeust);
+    const result = await this.appService.getAllBookmarkedWordsByUser(bookmarkReqeust)
+    if (result.length == 0) {
+      const response = {result : false , message : "북마크 표시한 단어 없음"}
+      res.status(404).json(response);
+    } else {
+      res.status(200).json(result);
+    }
   }
 }
 
@@ -259,4 +295,7 @@ function CheckHeader(header: RequestHeader) {
     return false;
   }
   return true;
+}
+function hasNonNullValues(obj: any): boolean {
+  return Object.values(obj).some((value) => value === null);
 }
