@@ -3,4 +3,5 @@ export class InsertUserResponse {
   message?: string;
   userId?:number
   userName?:string
+  createdAt?:Date
 }

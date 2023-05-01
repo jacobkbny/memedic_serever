@@ -38,10 +38,7 @@ export class AppController {
   ) {
     const insertUserResponse: InsertUserResponse =
       await this.appService.insertUser(createUserRequest);
-    if (
-      insertUserResponse.message === '닉네임 중복' ||
-      insertUserResponse.message === '이메일 중복'
-    ) {
+    if (insertUserResponse.message != null) {
       res.status(409).json(insertUserResponse);
     } else {
       res.status(201).json(insertUserResponse);
@@ -74,6 +71,7 @@ export class AppController {
       res.status(200).json(insertUserResponse);
     }
   }
+
   // 유저 삭제
   @Delete('/deleteUser')
   async deleteUser(@Res() res: Response, @Query('userId') userid: string) {
@@ -107,7 +105,7 @@ export class AppController {
   @Get('/getAllPending')
   async getPendingWord(@Res() res: Response) {
     const result = await this.appService.getPendingWords();
-    if (result.result === false) {
+    if (!Array.isArray(result)) {
       res.status(404).json(result);
     } else {
       res.status(200).json(result);
@@ -183,7 +181,7 @@ export class AppController {
     const searchWordResponse = await this.appService.getWordByUser(
       searchwordRequest,
     );
-    if (searchWordResponse.result === false) {
+    if (!Array.isArray(searchWordResponse)) {
       res.status(404).json(searchWordResponse);
     } else {
       res.status(200).json(searchWordResponse);
@@ -225,8 +223,10 @@ export class AppController {
     if (hasNonNullValues(userExpressionRequest)) {
       res.status(400);
       return;
-    } 
-    const userExpressionResponse = await this.appService.userExpression(userExpressionRequest)
+    }
+    const userExpressionResponse = await this.appService.userExpression(
+      userExpressionRequest,
+    );
     res.status(202).json(userExpressionResponse);
   }
   //내가(유저가) 좋아요한 단어 불러오기

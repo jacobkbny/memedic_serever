@@ -1,7 +1,9 @@
+import { homeFeedWord } from 'src/dtos/homeFeedWordDTO';
 import {
   InsertWordRequest,
   InsertWordResponse,
 } from 'src/dtos/insert_word_dto';
+import { pendingWord } from 'src/dtos/pendingWordDTO';
 import {
   SearchWordRequest,
   SearchWordResponse,
@@ -76,9 +78,9 @@ export async function fetchWordDetails(searchWordRequest: SearchWordRequest) {
     return {
       word: wordData.word,
       definition: wordData.definition,
-      username: wordData.registrar.username,
-      userid: wordData.registrar.id,
-      registered_time: wordData.registered_time,
+      userName: wordData.registrar.username,
+      userId: wordData.registrar.id,
+      registeredTime: wordData.registered_time,
       numberOfLikes: numberOfLikes,
       wordId: wordData.id,
     };
@@ -183,12 +185,33 @@ export async function fetchAllPendingWords() {
     where: {
       pending: true,
     },
+    include:{
+      registrar:true
+    }
   });
+
   if(pendingWords.length === 0){
-    return {result: false}
+    const response = {
+      result : false
+    }
+    return response
   }
-  return pendingWords;
+
+    const pendingWordArray : pendingWord[] = []
+    for(let i = 0; i < pendingWords.length; i++){
+      pendingWordArray[i] = new pendingWord()
+      pendingWordArray[i].wordId = pendingWords[i].id
+      pendingWordArray[i].word = pendingWords[i].word
+      pendingWordArray[i].definition = pendingWords[i].definition
+      pendingWordArray[i].example = pendingWords[i].example
+      pendingWordArray[i].registrarId = pendingWords[i].registrarId
+      pendingWordArray[i].registeredTime = pendingWords[i].registered_time
+      pendingWordArray[i].userName = pendingWords[i].registrar.username
+    }
+    return pendingWordArray;
+  
 }
+
 
 // 단어 승인
 export async function approveWord(
@@ -276,6 +299,7 @@ export async function fetchPopularWordsFromLastWeek() {
       },
       include: {
         likes: true,
+        registrar:true
       },
       orderBy: {
         likes: {
@@ -286,18 +310,29 @@ export async function fetchPopularWordsFromLastWeek() {
     if (words.length == 0) {
       return { message: 'Word not found' };
     }
-
     const wordsWithTotalLikes = words.map((word) => {
       const likes = word.likes.filter((like) => like.like_status).length;
       const dislikes = word.likes.filter((like) => !like.like_status).length;
       const totalLikes = likes - dislikes;
-
       return {
         ...word,
         totalLikes,
       };
     });
-    return wordsWithTotalLikes;
+    const homeFeedWordArray : homeFeedWord[] = [];
+    for(let i = 0; i<wordsWithTotalLikes.length; i++) {
+      homeFeedWordArray[i] = new homeFeedWord()
+      homeFeedWordArray[i].wordId = wordsWithTotalLikes[i].id
+      homeFeedWordArray[i].word = wordsWithTotalLikes[i].word
+      homeFeedWordArray[i].definition = wordsWithTotalLikes[i].definition
+      homeFeedWordArray[i].example = wordsWithTotalLikes[i].example
+      homeFeedWordArray[i].registrarId = wordsWithTotalLikes[i].registrarId
+      homeFeedWordArray[i].pending = wordsWithTotalLikes[i].pending
+      homeFeedWordArray[i].registeredTime = wordsWithTotalLikes[i].registered_time
+      homeFeedWordArray[i].totalLikes = wordsWithTotalLikes[i].totalLikes
+      homeFeedWordArray[i].userName = wordsWithTotalLikes[i].registrar.username
+    }
+    return homeFeedWordArray;
   } catch (error) {
     console.error('Error fetching popular words from last week:', error);
     throw error;
@@ -311,11 +346,28 @@ export async function fetchWordsByUser(searchWordRequest: SearchWordRequest) {
     where: {
       registrarId: searchWordRequest.registrarId,
     },
+    include:{
+      registrar:true
+    }
   });
+  
   if (userWords.length == 0){
     return {result : false}
   }
-  return userWords;
+
+  const pendingWordArray : pendingWord[] = []
+    for(let i = 0; i < userWords.length; i++){
+      pendingWordArray[i] = new pendingWord()
+      pendingWordArray[i].wordId = userWords[i].id
+      pendingWordArray[i].word = userWords[i].word
+      pendingWordArray[i].definition = userWords[i].definition
+      pendingWordArray[i].example = userWords[i].example
+      pendingWordArray[i].registrarId = userWords[i].registrarId
+      pendingWordArray[i].registeredTime = userWords[i].registered_time
+      pendingWordArray[i].userName = userWords[i].registrar.username
+    }
+
+  return pendingWordArray;
 }
 
 function getCurrentKSTDate() {

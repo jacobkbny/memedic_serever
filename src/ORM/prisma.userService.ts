@@ -36,7 +36,7 @@ export async function insertUserData(
     return response;
   }
 
-  const resulst = await prisma.user.create({
+  const result = await prisma.user.create({
     data: {
       username: createUserRequest.userName,
       email: createUserRequest.email,
@@ -45,8 +45,9 @@ export async function insertUserData(
 
   response.result = true;
   response.message = "가입 완료"
-  response.userId = resulst.id;
-  response.userName = resulst.username;
+  response.userId = result.id;
+  response.userName = result.username;
+  response.createdAt = result.created_at
   return response;
 }
 
@@ -98,6 +99,8 @@ export async function getUserInfoByEmail(email : string): Promise<InsertUserResp
   response.result = true;
   response.userId = userInfo.id;
   response.userName = userInfo.username;
+  response.createdAt = userInfo.created_at;
+
   return response
 }
 
