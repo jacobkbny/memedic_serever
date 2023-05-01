@@ -38,7 +38,11 @@ export class AppController {
   ) {
     const insertUserResponse: InsertUserResponse =
       await this.appService.insertUser(createUserRequest);
-    if (insertUserResponse.message != null) {
+
+    if (
+      insertUserResponse.message === '닉네임 중복' ||
+      insertUserResponse.message === '이메일 중복'
+    ) {
       res.status(409).json(insertUserResponse);
     } else {
       res.status(201).json(insertUserResponse);
