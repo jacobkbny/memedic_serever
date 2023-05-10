@@ -40,8 +40,7 @@ export class AppController {
       await this.appService.insertUser(createUserRequest);
 
     if (
-      insertUserResponse.message === '닉네임 중복' ||
-      insertUserResponse.message === '이메일 중복'
+      insertUserResponse.message !== '가입 완료'
     ) {
       res.status(409).json(insertUserResponse);
     } else {

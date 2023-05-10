@@ -1,4 +1,4 @@
-import { BookmarkRequest, BookmarkResponse } from 'src/dtos/bookmark_word_dto';
+import { Bookmark, BookmarkRequest, BookmarkResponse } from 'src/dtos/bookmark_word_dto';
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -78,7 +78,16 @@ export async function fetchBookmarkedWordsByUser(bookmark: BookmarkRequest) {
   });
 
   // Extract the bookmarked words from the userBookmarks array
-  const bookmarkedWords = userBookmarks.map((bookmark) => bookmark.word);
-
-  return bookmarkedWords;
+  const bookMarkWordArray : Bookmark[] = []
+  for(let i = 0; i < userBookmarks.length; i++){
+      bookMarkWordArray[i] = new Bookmark()
+      bookMarkWordArray[i].bookMarkId = userBookmarks[i].id
+      bookMarkWordArray[i].definition = userBookmarks[i].word.definition
+      bookMarkWordArray[i].example = userBookmarks[i].word.example
+      bookMarkWordArray[i].registeredTime = userBookmarks[i].word.registered_time
+      bookMarkWordArray[i].word = userBookmarks[i].word.word
+      bookMarkWordArray[i].registrarId = userBookmarks[i].word.registrarId
+      bookMarkWordArray[i].wordId = userBookmarks[i].wordId
+  }
+  return bookMarkWordArray;
 }
