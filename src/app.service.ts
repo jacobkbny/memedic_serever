@@ -5,6 +5,7 @@ import {
   changeUsername,
   deleteUser,
   getUserInfoByEmail,
+  fetchAllUserInfo,
 } from './ORM/prisma.userService';
 import { CreateUserRequest } from './dtos/create_user_dto';
 import { DeleteUserRequest, DeleteUserResponse } from './dtos/delete_user_dto';
@@ -155,6 +156,10 @@ export class AppService {
   // fetch all the bookmarked word by users
   async getAllBookmarkedWordsByUser(bookmark: BookmarkRequest) {
     const response = await fetchBookmarkedWordsByUser(bookmark);
+    return response;
+  }
+  async getAllUserInfo(){
+    const response : CreateUserRequest[]= await fetchAllUserInfo();
     return response;
   }
 }

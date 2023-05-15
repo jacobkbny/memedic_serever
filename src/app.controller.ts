@@ -74,6 +74,18 @@ export class AppController {
       res.status(200).json(insertUserResponse);
     }
   }
+  @Get("/getAllUserInfo")
+  async getAllUserInfo(@Res() res: Response){
+    const getAllUserInfos : CreateUserRequest[] = await this.appService.getAllUserInfo()
+    if (getAllUserInfos.length <=0){
+      const response = {
+        "result" : "not found"
+      }
+      res.status(404).json(response)
+    }else {
+      res.status(200).json(getAllUserInfos)
+    }
+  }
 
   // 유저 삭제
   @Delete('/deleteUser')

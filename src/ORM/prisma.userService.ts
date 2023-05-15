@@ -1,3 +1,4 @@
+import { userInfo } from 'os';
 import { ChangeUserNameResponse } from 'src/dtos/changeUsername_response_dto';
 import { CreateUserRequest } from 'src/dtos/create_user_dto';
 import {
@@ -25,21 +26,23 @@ export async function insertUserData(
     return response;
   }
 
-  const existenceByEmail = await prisma.user.findUnique({
-    where: {
-      email: createUserRequest.email,
-    },
-  });
-  if (existenceByEmail) {
-    response.result = false;
-    response.message = "이메일 중복"
-    return response;
-  }
+  // const existenceByEmail = await prisma.user.findUnique({
+  //   where: {
+  //     email: createUserRequest.email,
+  //   },
+  // });
+
+  // if (existenceByEmail) {
+  //   response.result = false;
+  //   response.message = "이메일 중복"
+  //   return response;
+  // }
 
   const result = await prisma.user.create({
     data: {
       username: createUserRequest.userName,
       email: createUserRequest.email,
+      loginMethod: createUserRequest.loginMethod
     },
   });
 
@@ -150,4 +153,21 @@ export async function deleteUser(
 
   response.result = true;
   return response;
+}
+
+export async function fetchAllUserInfo(){
+  const allUsers = await prisma.user.findMany();
+
+  const UserInfos : CreateUserRequest[] = []
+
+  for (let i =0 ; i<allUsers.length; i++) {
+    UserInfos[i] = new CreateUserRequest()
+    UserInfos[i].id = allUsers[i].id
+    UserInfos[i].userName = allUsers[i].username
+    UserInfos[i].email = allUsers[i].email
+    UserInfos[i].createdAt = allUsers[i].created_at
+    UserInfos[i].loginMethod = allUsers[i].loginMethod
+  }
+  return UserInfos
+
 }
