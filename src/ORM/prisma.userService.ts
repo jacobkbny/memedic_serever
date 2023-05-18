@@ -86,14 +86,15 @@ export async function changeUsername(
   response.result = true;
   return response;
 }
+
 export async function getUserInfoByEmail(email : string): Promise<InsertUserResponse>{
   const response = new InsertUserResponse();
-  const userInfo = await prisma.user.findUnique({
+  const userInfo = await prisma.user.findMany({
     where:{
       email: email,
     }
   })
-  if (userInfo == null) {
+  if (userInfo.length <= 0) {
     response.result = false;
     response.message = "User not found"
     return response
