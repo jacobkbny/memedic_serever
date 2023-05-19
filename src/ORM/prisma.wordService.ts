@@ -288,18 +288,22 @@ export async function deleteUnapprovedWord(
     return response;
   }
 }
-export async function fetchPopularWordsFromLastWeek() {
+// if (words.length == 0) {
+//   return { message: 'Word not found' };
+// }
+export async function fetchPopularWordsFromLastWeek(userId ?: number){
   try {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    const words = await prisma.word.findMany({
+    let words = await prisma.word.findMany({
       where: {
         AND: [{ registered_time: { gte: oneWeekAgo } }, { pending: false }],
       },
       include: {
         likes: true,
-        registrar:true
+        bookmarks: userId ? true : false, // Include bookmarks only if userId is provided
+        registrar: true,
       },
       orderBy: {
         likes: {
@@ -307,35 +311,42 @@ export async function fetchPopularWordsFromLastWeek() {
         },
       },
     });
-    if (words.length == 0) {
+
+    if (words.length === 0) {
       return { message: 'Word not found' };
     }
-    const wordsWithTotalLikes = words.map((word) => {
+
+    const homeFeedWordArray = words.map(word => {
       const likes = word.likes.filter((like) => like.like_status).length;
       const dislikes = word.likes.filter((like) => !like.like_status).length;
       const totalLikes = likes - dislikes;
+      let userLiked = false;
+      let userBookmarked = false;
+
+      // If userId is provided, check if the user has liked or bookmarked the word
+      if (userId != null) {
+        userLiked = word.likes.some(like => like.userId == userId);
+        userBookmarked = word.bookmarks.some(bookmark => bookmark.userId == userId);
+      }
+
       return {
-        ...word,
+        wordId: word.id,
+        word: word.word,
+        definition: word.definition,
+        example: word.example,
+        registrarId: word.registrarId,
+        pending: word.pending,
+        registeredTime: word.registered_time,
         totalLikes,
+        userName: word.registrar.username,
+        userLiked,
+        userBookmarked,
       };
     });
-    const homeFeedWordArray : homeFeedWord[] = [];
-    for(let i = 0; i<wordsWithTotalLikes.length; i++) {
-      homeFeedWordArray[i] = new homeFeedWord()
-      homeFeedWordArray[i].wordId = wordsWithTotalLikes[i].id
-      homeFeedWordArray[i].word = wordsWithTotalLikes[i].word
-      homeFeedWordArray[i].definition = wordsWithTotalLikes[i].definition
-      homeFeedWordArray[i].example = wordsWithTotalLikes[i].example
-      homeFeedWordArray[i].registrarId = wordsWithTotalLikes[i].registrarId
-      homeFeedWordArray[i].pending = wordsWithTotalLikes[i].pending
-      homeFeedWordArray[i].registeredTime = wordsWithTotalLikes[i].registered_time
-      homeFeedWordArray[i].totalLikes = wordsWithTotalLikes[i].totalLikes
-      homeFeedWordArray[i].userName = wordsWithTotalLikes[i].registrar.username
-    }
+
     return homeFeedWordArray;
   } catch (error) {
-    console.error('Error fetching popular words from last week:', error);
-    throw error;
+    console.error('Error fetching popular words from last week', error);
   }
 }
 

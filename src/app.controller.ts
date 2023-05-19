@@ -156,8 +156,8 @@ export class AppController {
   }
   // 홈 피드 단어 불러오기
   @Get('/getHomeFeed')
-  async getHomeFeed(@Res() res) {
-    const response = await this.appService.getHomeFeeds();
+  async getHomeFeed(@Res() res, @Query("userId") userId ?: number){
+    const response = await this.appService.getHomeFeeds(userId);
     if (!Array.isArray(response)) {
       res.status(404).json(response);
     } else {

@@ -105,8 +105,8 @@ export class AppService {
     return response;
   }
   // 홈 피드 단어 불러오기
-  async getHomeFeeds() {
-    const response = await fetchPopularWordsFromLastWeek();
+  async getHomeFeeds(userId ?: number) {
+    const response = await fetchPopularWordsFromLastWeek(userId);
     return response;
   }
   // 승인 전 단어 불러오기
