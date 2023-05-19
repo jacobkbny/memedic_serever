@@ -87,11 +87,12 @@ export async function changeUsername(
   return response;
 }
 
-export async function getUserInfoByEmail(email : string): Promise<InsertUserResponse>{
+export async function getUserInfo(createUserRequest : CreateUserRequest): Promise<InsertUserResponse>{
   const response = new InsertUserResponse();
-  const userInfo = await prisma.user.findMany({
+  const userInfo = await prisma.user.findFirst({
     where:{
-      email: email,
+      email: createUserRequest.email,
+      loginMethod:createUserRequest.loginMethod
     }
   })
   if (userInfo.length <= 0) {
@@ -104,7 +105,6 @@ export async function getUserInfoByEmail(email : string): Promise<InsertUserResp
   response.userId = userInfo.id;
   response.userName = userInfo.username;
   response.createdAt = userInfo.created_at;
-
   return response
 }
 

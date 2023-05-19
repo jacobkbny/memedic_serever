@@ -82,11 +82,8 @@ export async function fetchBookmarkedWordsByUser(bookmark: BookmarkRequest) {
   for(let i = 0; i < userBookmarks.length; i++){
       bookMarkWordArray[i] = new Bookmark()
       bookMarkWordArray[i].bookMarkId = userBookmarks[i].id
-      bookMarkWordArray[i].definition = userBookmarks[i].word.definition
-      bookMarkWordArray[i].example = userBookmarks[i].word.example
       bookMarkWordArray[i].registeredTime = userBookmarks[i].word.registered_time
       bookMarkWordArray[i].word = userBookmarks[i].word.word
-      bookMarkWordArray[i].registrarId = userBookmarks[i].word.registrarId
       bookMarkWordArray[i].wordId = userBookmarks[i].wordId
   }
   return bookMarkWordArray;

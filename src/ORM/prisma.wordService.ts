@@ -360,9 +360,6 @@ export async function fetchWordsByUser(searchWordRequest: SearchWordRequest) {
       pendingWordArray[i] = new pendingWord()
       pendingWordArray[i].wordId = userWords[i].id
       pendingWordArray[i].word = userWords[i].word
-      pendingWordArray[i].definition = userWords[i].definition
-      pendingWordArray[i].example = userWords[i].example
-      pendingWordArray[i].registrarId = userWords[i].registrarId
       pendingWordArray[i].registeredTime = userWords[i].registered_time
       pendingWordArray[i].userName = userWords[i].registrar.username
     }

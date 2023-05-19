@@ -65,13 +65,16 @@ export class AppController {
 
   // 유저 정보 불러오기
   @Get('/getUserInfo')
-  async getUserInfo(@Res() res: Response, @Query('email') email: string) {
-    const insertUserResponse: InsertUserResponse =
-      await this.appService.getUserInfo(email);
-    if (insertUserResponse.result === false) {
-      res.status(404).json(insertUserResponse);
-    } else {
-      res.status(200).json(insertUserResponse);
+  async getUserInfo(@Res() res: Response, @Query('email') email: string, @Query('loginMethod') loginMethod: string) {
+    const createUserRequest :CreateUserRequest = new CreateUserRequest()
+    createUserRequest.email = email 
+    createUserRequest.loginMethod = loginMethod
+
+    const response = await this.appService.getUserInfo(createUserRequest)
+    if(response.result == false){
+      res.status(404).json(response);
+    }else {
+      res.status(200).json(response);
     }
   }
   @Get("/getAllUserInfo")
