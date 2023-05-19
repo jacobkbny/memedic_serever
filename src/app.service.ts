@@ -6,8 +6,9 @@ import {
   deleteUser,
   getUserInfo,
   fetchAllUserInfo,
+  setUserAsAdmin,
 } from './ORM/prisma.userService';
-import { CreateUserRequest } from './dtos/create_user_dto';
+import { CreateAdminRequest, CreateUserRequest } from './dtos/create_user_dto';
 import { DeleteUserRequest, DeleteUserResponse } from './dtos/delete_user_dto';
 import { InsertUserResponse } from './dtos/Insert_user_dto';
 import { ChangeUsernameRequest } from './dtos/modify_user_dto';
@@ -73,6 +74,10 @@ export class AppService {
   async deleteUser(deleteUserRequest: DeleteUserRequest) {
     const response: DeleteUserResponse = await deleteUser(deleteUserRequest);
     return response;
+  }
+  async makeUserAdmin(createAdmin : CreateAdminRequest) {
+    const response : InsertUserResponse = await setUserAsAdmin(createAdmin)
+    return response
   }
   // 단어 등록
   async registerWord(InsertWordRequest: InsertWordRequest) {

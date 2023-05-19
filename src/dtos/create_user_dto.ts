@@ -5,3 +5,7 @@ export class CreateUserRequest {
   loginMethod: string;
   createdAt: Date
 }
+
+export class CreateAdminRequest {
+  email : string 
+}

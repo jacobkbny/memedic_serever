@@ -1,6 +1,6 @@
 import { userInfo } from 'os';
 import { ChangeUserNameResponse } from 'src/dtos/changeUsername_response_dto';
-import { CreateUserRequest } from 'src/dtos/create_user_dto';
+import { CreateAdminRequest, CreateUserRequest } from 'src/dtos/create_user_dto';
 import {
   DeleteUserRequest,
   DeleteUserResponse,
@@ -95,7 +95,7 @@ export async function getUserInfo(createUserRequest : CreateUserRequest): Promis
       loginMethod:createUserRequest.loginMethod
     }
   })
-  if (userInfo.length <= 0) {
+  if (userInfo == null) {
     response.result = false;
     response.message = "User not found"
     return response
@@ -171,4 +171,24 @@ export async function fetchAllUserInfo(){
   }
   return UserInfos
 
+}
+
+export async function setUserAsAdmin(createAdmin: CreateAdminRequest){
+  const response : InsertUserResponse = new InsertUserResponse()
+  const user = await prisma.user.updateMany({
+    where: {
+      email: createAdmin.email,
+    },
+    data: {
+      role: true,
+    },
+  });
+
+  if (user.length<=0){
+    response.result = false
+    response.message = "User not found"
+    return response
+  }
+  response.result = true
+  return response
 }

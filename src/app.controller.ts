@@ -12,7 +12,7 @@ import { Response } from 'express';
 import { AppService } from './app.service';
 import { BookmarkRequest } from './dtos/bookmark_word_dto';
 import { ChangeUserNameResponse } from './dtos/changeUsername_response_dto';
-import { CreateUserRequest } from './dtos/create_user_dto';
+import { CreateAdminRequest, CreateUserRequest } from './dtos/create_user_dto';
 import { DeleteUserRequest, DeleteUserResponse } from './dtos/delete_user_dto';
 import { InsertUserResponse } from './dtos/Insert_user_dto';
 import { InsertWordRequest, InsertWordResponse } from './dtos/insert_word_dto';
@@ -156,8 +156,14 @@ export class AppController {
   }
   // 홈 피드 단어 불러오기
   @Get('/getHomeFeed')
-  async getHomeFeed() {
-    return this.appService.getHomeFeeds();
+  async getHomeFeed(@Res() res) {
+    const response = await this.appService.getHomeFeeds();
+    if (!Array.isArray(response)) {
+      res.status(404).json(response);
+    } else {
+      res.status(200).json(response);
+    }
+     
   }
   // 단어 승인
   @Put('/approval')
@@ -312,8 +318,19 @@ export class AppController {
       res.status(200).json(result);
     }
   }
+  
+  @Post("/makeAdmin")
+  async makeAdmin(@Res() res: Response , @Body() createAdmin : CreateAdminRequest){
+    const response : InsertUserResponse = await this.appService.makeUserAdmin(createAdmin)
+    if (response.result == false) {
+      res.status(404).json(response);
+    } else {
+      res.status(200).json(response);
+    }
+  }
 }
 
+ 
 function CheckHeader(header: RequestHeader) {
   if (header.ApiKey !== process.env.Api_Key) {
     return false;
