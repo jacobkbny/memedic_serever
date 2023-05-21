@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM welcome-to-docker
 
 WORKDIR /app
 

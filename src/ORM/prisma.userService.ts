@@ -26,17 +26,17 @@ export async function insertUserData(
     return response;
   }
 
-  // const existenceByEmail = await prisma.user.findUnique({
-  //   where: {
-  //     email: createUserRequest.email,
-  //   },
-  // });
+  const existenceByEmail = await prisma.user.findMany({
+    where: {
+      email: createUserRequest.email,
+    },
+  });
 
-  // if (existenceByEmail) {
-  //   response.result = false;
-  //   response.message = "이메일 중복"
-  //   return response;
-  // }
+  if (existenceByEmail.loginMethod == createUserRequest.loginMethod) {
+    response.result = false;
+    response.message = "가입 경로 중복"
+    return response;
+  }
 
   const result = await prisma.user.create({
     data: {
